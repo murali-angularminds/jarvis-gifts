@@ -1,0 +1,419 @@
+<!doctype html>
+<html lang="en">
+<head>
+<!-- made from ../index.html by make_festival_pages(): change that one -->
+<base href="../">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>You've got a gift 🎁</title>
+<!--
+  J.A.R.V.I.S festival gift page (published on GitHub Pages). The email's
+  "Open your gift" button links here with the card in the URL's #fragment
+  (base64url JSON: f festival, t to, n from, a amount, c claim code,
+  m message), which browsers never send to the server. The page shows the
+  card the way the email used to and plays the festival's tune: right away
+  where the browser allows sound, else at the tap that opens the gift box.
+  The gift itself (amount, claim code) and the sender's message stay hidden
+  until the tune is done. While it plays, Santa crosses the card once, in
+  step with it (diyas on Diwali, balloons on a birthday, colours on Holi,
+  the moon on Eid, rakhi knots on Raksha Bandhan), then comes back to its
+  middle; there, like a film, he takes the gift out and hands it over, and
+  it bursts open into the voucher and the message, as Jarvis's voice wishes
+  them. Tunes: songs/<festival>.mp3 (a public-domain tune), voices:
+  voices/<festival>.mp3 (Jarvis's voice), both made by the host-agent,
+  services/extras/festival_gifts.py, make_page_songs().
+-->
+<style>
+  :root { --c1: #4338ca; --c2: #0e7490; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; min-height: 100%; }
+  body {
+    min-height: 100vh; font-family: "Segoe UI", Helvetica, Arial, sans-serif; color: #0f172a;
+    background: radial-gradient(circle at 50% 20%, color-mix(in srgb, var(--c1) 55%, #0b1020), #070a14 70%);
+    display: flex; align-items: center; justify-content: center; padding: 16px; overflow-x: hidden;
+  }
+  .fx { position: fixed; inset: 0; pointer-events: none; overflow: hidden; }
+  .fx span { position: absolute; top: -20px; color: #fff; opacity: .85; animation: fall linear infinite; }
+  @keyframes fall { to { transform: translateY(110vh) rotate(360deg); } }
+
+  .wrap { position: relative; width: 100%; max-width: 560px; }
+
+  /* the wrapped gift, before it's opened */
+  .gift { text-align: center; color: #fff; cursor: pointer; user-select: none; transition: opacity .5s, transform .5s; }
+  .gift .box { font-size: 120px; line-height: 1; display: inline-block; animation: wobble 1.6s ease-in-out infinite; filter: drop-shadow(0 10px 30px rgba(0,0,0,.4)); }
+  .gift h1 { margin: 18px 0 6px; font-size: 28px; }
+  .gift p { margin: 0; opacity: .85; font-size: 16px; }
+  .gift .tap { margin-top: 22px; display: inline-block; padding: 12px 28px; border-radius: 999px; background: #fff; color: var(--c1); font-weight: 700; font-size: 16px; box-shadow: 0 8px 24px rgba(0,0,0,.3); }
+  @keyframes wobble { 0%, 100% { transform: rotate(0) scale(1); } 20% { transform: rotate(-7deg) scale(1.04); } 40% { transform: rotate(6deg); } 60% { transform: rotate(-3deg) scale(1.02); } }
+  .gift.opening .box { animation: burst .6s ease-in forwards; }
+  @keyframes burst { to { transform: scale(1.6) rotate(12deg); opacity: 0; } }
+  .gift.gone { opacity: 0; transform: scale(.9); pointer-events: none; position: absolute; inset: 0; }
+
+  /* the card, as the email showed it */
+  .card { background: #fff; border-radius: 18px; overflow: hidden; box-shadow: 0 18px 50px rgba(0,0,0,.35);
+          opacity: 0; transform: translateY(30px) scale(.96); transition: opacity .6s, transform .6s; display: none; }
+  .card.shown { display: block; }
+  .card.in { opacity: 1; transform: none; }
+  .banner { background: linear-gradient(135deg, var(--c1), var(--c2)); color: #fff; text-align: center; padding: 34px 24px; }
+  .banner .mark { font-size: 54px; line-height: 1; }
+  .banner .greet { margin-top: 10px; font-size: 28px; font-weight: 700; }
+  .banner .from { margin-top: 6px; font-size: 15px; opacity: .92; }
+  .body { padding: 28px 26px 10px; text-align: center; }
+  .label { margin-top: 18px; font-size: 13px; letter-spacing: 2px; color: #64748b; text-transform: uppercase; }
+  .amount { margin-top: 4px; font-size: 46px; font-weight: 800; color: var(--c1); }
+  .code { margin-top: 6px; display: inline-flex; align-items: center; gap: 10px; padding: 12px 18px; border: 2px dashed var(--c1);
+          border-radius: 10px; font: bold 22px/1.2 "Courier New", monospace; letter-spacing: 3px; background: #fff7ed; }
+  .code button { font: 600 12px "Segoe UI", sans-serif; letter-spacing: 0; padding: 6px 10px; border-radius: 8px; border: 0; background: var(--c1); color: #fff; cursor: pointer; }
+  .later { margin-top: 18px; font-size: 13px; color: #64748b; }
+  .msg { margin: 22px auto 0; max-width: 420px; padding: 14px 18px; border-left: 4px solid var(--c2); background: #f8fafc; border-radius: 6px;
+         text-align: left; font-size: 15px; line-height: 1.55; color: #334155; white-space: pre-line; position: relative; }
+  .msg.saying { box-shadow: 0 0 0 3px color-mix(in srgb, var(--c2) 25%, transparent); }
+  .msg .say { float: right; margin: -4px -6px 0 8px; width: 30px; height: 30px; border: 0; border-radius: 50%; background: #fff;
+              font-size: 15px; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,.15); }
+  .redeem { display: inline-block; margin: 24px 0 8px; padding: 13px 30px; border-radius: 999px; background: #f59e0b; color: #111827;
+            font-weight: 700; font-size: 15px; text-decoration: none; }
+  .how { font-size: 12px; color: #94a3b8; line-height: 1.5; }
+  .sign { padding: 20px 26px 26px; text-align: center; font-size: 14px; color: #475569; }
+  .sign b { color: #0f172a; }
+
+  /* the song's switch */
+  .music { position: fixed; right: 16px; bottom: 16px; width: 48px; height: 48px; border-radius: 50%; border: 0; cursor: pointer;
+           background: #fff; font-size: 22px; box-shadow: 0 6px 18px rgba(0,0,0,.35); display: none; }
+  .music.shown { display: block; }
+  .music.on { animation: pulse 1.2s ease-in-out infinite; }
+  @keyframes pulse { 50% { box-shadow: 0 0 0 10px color-mix(in srgb, var(--c2) 30%, transparent); } }
+  /* while the song plays, the gift waits */
+  .wait { margin: 22px auto 4px; font-size: 14px; color: #64748b; }
+  .wait .notes { display: inline-block; animation: bob 1.4s ease-in-out infinite; }
+  .voucher { opacity: 0; transform: scale(.85); transition: opacity .6s, transform .6s cubic-bezier(.2, 1.4, .4, 1); }
+  .voucher.in { opacity: 1; transform: none; }
+  @keyframes bob { 50% { transform: translateY(-4px); } }
+
+  /* the delivery, inside the card: Santa's sleigh (or the festival's own: diyas, balloons,
+     colours, moon, rakhis) crosses it once, in step with the song, and once it's over
+     comes back to its middle; then, like a film: the lights dim, the camera closes in, Santa
+     takes the gift out and hands it to you, and flies off */
+  .card { position: relative; }
+  .sky { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 5; transition: opacity .5s; }
+  .sky.out { opacity: 0; }
+  .sleigh { position: absolute; top: 50%; left: 0; white-space: nowrap; font-size: 34px; line-height: 1;
+            filter: drop-shadow(0 4px 10px rgba(0,0,0,.4)); transform: translate(100vw, -50%); }
+  .sleigh.glide { transition: transform 1.2s ease-in-out; }
+  .sleigh .ho { transition: opacity .3s; }
+  .sleigh.quiet .ho { opacity: 0; }
+  .dim { position: absolute; inset: 0; background: radial-gradient(circle at 50% 50%, transparent 18%, rgba(0,0,0,.6) 75%);
+         opacity: 0; transition: opacity 1s; }
+  .dim.on { opacity: 1; }
+  .rays { position: absolute; width: 240px; height: 240px; margin: -120px 0 0 -120px; border-radius: 50%; opacity: 0; transition: opacity .6s;
+          background: repeating-conic-gradient(rgba(253,224,71,.45) 0 9deg, transparent 9deg 22deg);
+          -webkit-mask: radial-gradient(circle, #000 25%, transparent 70%); mask: radial-gradient(circle, #000 25%, transparent 70%);
+          animation: spin 8s linear infinite; }
+  .rays.on { opacity: 1; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .sleigh .ride { display: inline-block; animation: bob .6s ease-in-out infinite; }
+  .sleigh .lead { display: inline-block; margin-right: -4px; }
+  .sleigh .lead:nth-child(2) { animation-delay: -.3s; }
+  .sleigh .sled { position: relative; display: inline-block; margin-left: 4px; }
+  .sleigh .sled b { position: absolute; left: 4px; bottom: 16px; font-size: 28px; font-weight: normal; }
+  .sleigh .ho { position: absolute; bottom: 100%; left: 50%; transform: translate(-50%, -8px); white-space: nowrap; padding: 3px 9px;
+                border-radius: 10px; background: #fff; color: var(--c1); font: 700 12px "Segoe UI", sans-serif; box-shadow: 0 2px 8px rgba(0,0,0,.25); }
+  .drop { position: absolute; font-size: 30px; line-height: 1; transform: translate(-50%, -50%); filter: drop-shadow(0 0 14px rgba(253,224,71,.8));
+          transition: left 1.2s ease-in-out, top 1.2s ease-in-out, font-size 1.2s ease-in-out, opacity .5s; }
+  .drop.hid { opacity: 0; font-size: 8px; }
+  .drop.landed { animation: wobble .8s ease-in-out 2; }
+  .drop.burst { animation: burst .55s ease-in forwards; }
+  .spark { position: absolute; font-size: 18px; transform: translate(-50%, -50%); animation: spark .9s ease-out forwards; }
+  @keyframes spark { to { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(.4); opacity: 0; } }
+
+  .bad { color: #fff; text-align: center; font-size: 18px; }
+  @media (prefers-reduced-motion: reduce) { .fx, .gift .box, .music.on, .wait .notes { animation: none !important; } .fx { display: none; } }
+</style>
+</head>
+<body>
+<div class="fx" id="fx" aria-hidden="true"></div>
+<div class="wrap">
+  <div class="gift" id="gift" role="button" tabindex="0" aria-label="Open your gift">
+    <div class="box">🎁</div>
+    <h1 id="giftTitle">You've got a gift!</h1>
+    <p id="giftFrom"></p>
+    <div class="tap">Tap to open</div>
+  </div>
+
+  <div class="card" id="card" aria-live="polite">
+    <div class="banner">
+      <div class="mark" id="mark">🎉</div>
+      <div class="greet" id="greet"></div>
+      <div class="from" id="from"></div>
+    </div>
+    <div class="body">
+      <div class="wait" id="wait"><span class="notes">🎶</span> Listen… your gift is on its way!</div>
+      <div class="voucher" id="voucher" hidden>
+        <div id="msg"></div>
+        <div class="label">Amazon Gift Card</div>
+        <div class="amount" id="amount"></div>
+        <div id="codeBox"></div>
+        <a class="redeem" href="https://www.amazon.in/gc/redeem" target="_blank" rel="noopener">Redeem on Amazon</a>
+        <div class="how">amazon.in → Your Account → Gift Cards → Add a gift card, and enter the claim code.</div>
+      </div>
+    </div>
+    <div class="sign">With love,<br><b id="sign"></b></div>
+  </div>
+  <div class="bad" id="bad" hidden>This gift link looks broken. Ask the sender to send it again 🙏</div>
+</div>
+<button class="music" id="music" type="button" aria-label="Music on / off">🔊</button>
+<audio id="song" preload="auto"></audio>
+<audio id="voice" preload="auto"></audio>
+
+<script>
+(function () {
+  // keep in step with STYLES in host-agent services/extras/festival_gifts.py
+  var STYLES = [
+    ["christmas", "#b91c1c", "#166534", "🎄", "Merry Christmas", "christmas", "❄"],
+    ["new year", "#1e3a8a", "#a16207", "🎆", "Happy New Year", "christmas", "✨"],
+    ["diwali", "#c2410c", "#a16207", "🪔", "Happy Diwali", "festival", "✨"],
+    ["holi", "#be185d", "#7c3aed", "🎨", "Happy Holi", "festival", "●"],
+    ["raksha", "#b45309", "#be123c", "🎁", "Happy Raksha Bandhan", "festival", "✨"],
+    ["eid", "#065f46", "#a16207", "🌙", "Eid Mubarak", "festival", "✦"],
+    ["birthday", "#7c3aed", "#db2777", "🎂", "Happy Birthday", "festival", "🎈"]
+  ];
+  var $ = function (id) { return document.getElementById(id); };
+  // bump when songs/ or voices/ change, so no browser plays the old ones from its cache
+  var AUDIO = 3;
+
+  var data = null;
+  try {
+    var b64 = location.hash.slice(1).replace(/-/g, "+").replace(/_/g, "/");
+    var bin = atob(b64 + "===".slice((b64.length + 3) % 4));
+    data = JSON.parse(new TextDecoder().decode(Uint8Array.from(bin, function (ch) { return ch.charCodeAt(0); })));
+  } catch (e) { data = null; }
+  if (!data || typeof data !== "object") {
+    $("gift").hidden = true;
+    $("bad").hidden = false;
+    return;
+  }
+  // the link's own text: shown as text only, never as markup
+  var str = function (v, max) { return String(v == null ? "" : v).slice(0, max); };
+  var festival = str(data.f, 60), to = str(data.t, 60), from = str(data.n, 60) || "A friend";
+  var amount = Number(data.a) || 0, code = str(data.c, 30).replace(/[^A-Za-z0-9-]/g, "").toUpperCase(), message = str(data.m, 600);
+
+  var low = festival.toLowerCase();
+  var st = STYLES.filter(function (s) { return low.indexOf(s[0]) !== -1; })[0] ||
+    ["", "#4338ca", "#0e7490", "🎉", festival ? "Happy " + festival : "A gift for you", "festival", "✨"];
+  document.documentElement.style.setProperty("--c1", st[1]);
+  document.documentElement.style.setProperty("--c2", st[2]);
+  document.title = st[3] + " " + st[4] + (to ? ", " + to : "") + "!";
+
+  $("giftTitle").textContent = st[4] + (to ? ", " + to : "") + "!";
+  $("giftFrom").textContent = from + " sent you a gift";
+  $("mark").textContent = st[3];
+  $("greet").textContent = st[4] + "!";
+  $("from").textContent = from + " sent you a gift 🎁";
+  $("amount").textContent = amount > 0 ? "₹" + amount.toLocaleString("en-IN") : "";
+  $("sign").textContent = from;
+
+  if (code) {
+    var label = document.createElement("div"); label.className = "label"; label.textContent = "Claim code";
+    var box = document.createElement("div"); box.className = "code";
+    var txt = document.createElement("span"); txt.textContent = code;
+    var copy = document.createElement("button"); copy.type = "button"; copy.textContent = "Copy";
+    copy.onclick = function () {
+      (navigator.clipboard ? navigator.clipboard.writeText(code) : Promise.reject()).then(
+        function () { copy.textContent = "Copied ✓"; },
+        function () { copy.textContent = "Select & copy"; });
+    };
+    box.appendChild(txt); box.appendChild(copy);
+    $("codeBox").appendChild(label); $("codeBox").appendChild(box);
+  } else {
+    var later = document.createElement("div"); later.className = "later"; later.textContent = "Your claim code will reach you separately.";
+    $("codeBox").appendChild(later);
+  }
+  // Jarvis's voice as the gift opens (and again at the message's 🔊)
+  var voice = $("voice");
+  voice.src = "voices/" + st[5] + ".mp3?v=" + AUDIO;
+  var say = function () { song.pause(); voice.currentTime = 0; voice.play().catch(function () {}); };
+  if (message) {
+    var m = document.createElement("div"); m.className = "msg";
+    var again = document.createElement("button"); again.type = "button"; again.className = "say"; again.textContent = "🔊";
+    again.setAttribute("aria-label", "Hear Jarvis again");
+    again.onclick = say;
+    m.appendChild(again); m.appendChild(document.createTextNode(message));
+    $("msg").appendChild(m);
+    voice.onplay = function () { m.classList.add("saying"); };
+    voice.onpause = voice.onended = function () { m.classList.remove("saying"); };
+  }
+
+  // falling snow / sparkles
+  var fx = $("fx");
+  for (var i = 0; i < 26; i++) {
+    var s = document.createElement("span");
+    s.textContent = st[6];
+    s.style.left = (i * 37 % 100) + "%";
+    s.style.fontSize = (10 + (i * 7) % 14) + "px";
+    s.style.animationDuration = (6 + (i * 13) % 9) + "s";
+    s.style.animationDelay = (-(i * 0.7)) + "s";
+    if (st[6] === "●") s.style.color = ["#f472b6", "#a3e635", "#facc15", "#38bdf8", "#c084fc"][i % 5];
+    fx.appendChild(s);
+  }
+
+  var song = $("song"), music = $("music");
+  song.src = "songs/" + st[5] + ".mp3?v=" + AUDIO;
+  var setMusic = function (on) { music.classList.toggle("on", on); music.textContent = on ? "🔊" : "🔈"; };
+  song.onplay = function () { setMusic(true); };
+  song.onpause = function () { setMusic(false); };
+  music.onclick = function () {
+    if (song.paused) { song.play().catch(function () {}); return; }
+    song.pause();
+    songDone(); // the song was turned off: don't keep the gift waiting on it
+  };
+
+  // the gift (amount, claim code) comes only after the song and the voice.
+  // While they play, Santa (or diyas / balloons / colours / the moon / rakhis)
+  // crosses the card once, as far along as the song is; once it's over he
+  // comes back to the card's middle. Then, like a film: the lights dim, the camera closes in on him, he
+  // takes the gift out and hands it over, flies off, and the gift bursts open
+  // into the voucher
+  var opened = false, done = false, delivered = false;
+  var card = $("card"), sky = null, santa = null, at_p = 0;
+  var reveal = function () {
+    $("wait").hidden = true;
+    var v = $("voucher");
+    v.hidden = false;
+    requestAnimationFrame(function () { requestAnimationFrame(function () { v.classList.add("in"); }); });
+    setTimeout(function () { v.scrollIntoView({ behavior: "smooth", block: "center" }); }, 300);
+    setTimeout(say, 700);
+  };
+  // who brings it (Santa unless the festival has its own): the gift comes out of .sled
+  var lead = function (a, b, sled) { return '<span class="lead">' + a + '</span><span class="lead">' + b + '</span><span class="sled">' + sled + '</span>'; };
+  var who = {
+    diwali: [lead("✨", "🪔", "🪔"), "Happy Diwali! 🎁"],
+    birthday: [lead("🎈", "🎈", "🎈"), "Happy Birthday! 🎁"],
+    holi: [lead("💦", "🎨", "🎨"), "Happy Holi! 🎁"],
+    eid: [lead("✨", "⭐", "🌙"), "Eid Mubarak! 🎁"],
+    raksha: [lead("✨", "🪢", "🪢"), "Happy Raksha Bandhan! 🎁"]
+  }[st[0]] || [lead("🦌", "🦌", "🛷<b>🎅</b>"), "Ho ho ho! 🎁"];
+  // where he is: p 0 just off the card's right edge, 1 in its middle, 2 off
+  // its left edge; z how close the camera is
+  var place = function (p, z) {
+    at_p = p;
+    var w = card.clientWidth, fw = santa.offsetWidth;
+    santa.style.transform = "translate(" + Math.round(w - p * (w + fw) / 2) + "px, -50%)" + (z ? " scale(" + z + ")" : "");
+  };
+  // in step with the song, till it's done
+  var follow = function () {
+    if (done) return;
+    var d = song.duration;
+    if (d && isFinite(d)) place(Math.min(2, 2 * song.currentTime / d));
+    requestAnimationFrame(follow);
+  };
+  // the card is up: the sky over it, and Santa on his way
+  var startSky = function () {
+    if (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    sky = document.createElement("div"); sky.className = "sky"; sky.setAttribute("aria-hidden", "true");
+    sky.innerHTML = '<div class="dim"></div>';
+    santa = document.createElement("div"); santa.className = "sleigh";
+    santa.innerHTML = '<span class="ride">' + who[0] + '</span><span class="ho">' + who[1] + '</span>';
+    sky.appendChild(santa);
+    card.appendChild(sky);
+    place(0);
+    follow();
+  };
+  var at = function (el) {
+    var c = card.getBoundingClientRect(), r = el.getBoundingClientRect();
+    return { x: r.left - c.left + r.width / 2, y: r.top - c.top + r.height / 2 };
+  };
+  var after = function (ms, fn) { setTimeout(fn, ms); };
+  // the scene, from Santa in the card's middle
+  var handOver = function () {
+    var dim = sky.querySelector(".dim");
+    dim.classList.add("on");
+    place(1, 1.8); // the camera closes in
+    after(1300, function () {
+      // out of the sack, up above him, glowing
+      var from = at(santa.querySelector(".sled"));
+      var box = document.createElement("div"); box.className = "drop hid"; box.textContent = "🎁";
+      box.style.left = from.x + "px"; box.style.top = from.y + "px";
+      sky.insertBefore(box, santa);
+      santa.querySelector(".ho").textContent = "Ye lo, aapke liye! 🎁";
+      void box.offsetWidth; // from there, not from where it ends up
+      box.classList.remove("hid");
+      box.style.top = (from.y - 70) + "px"; box.style.fontSize = "52px";
+      after(1700, function () {
+        // handed over: to where the gift will be, close to you; he's off
+        var to = at($("wait"));
+        var rays = document.createElement("div"); rays.className = "rays";
+        rays.style.left = to.x + "px"; rays.style.top = to.y + "px";
+        sky.insertBefore(rays, box);
+        sky.appendChild(box); // in front of him now
+        box.style.left = to.x + "px"; box.style.top = to.y + "px"; box.style.fontSize = "96px";
+        santa.classList.add("quiet");
+        place(2, 1);
+        after(400, function () { rays.classList.add("on"); });
+        after(1200, function () { dim.classList.remove("on"); box.classList.add("landed"); });
+        after(2800, function () {
+          box.classList.remove("landed"); box.classList.add("burst");
+          rays.classList.remove("on");
+          ["✨", "🎉", "⭐", "✨", "🎊", "⭐", "✨", "🎉"].forEach(function (ch, i) {
+            var sp = document.createElement("span"); sp.className = "spark"; sp.textContent = ch;
+            var a = i / 8 * Math.PI * 2;
+            sp.style.left = to.x + "px"; sp.style.top = to.y + "px";
+            sp.style.setProperty("--dx", Math.round(Math.cos(a) * 120) + "px");
+            sp.style.setProperty("--dy", Math.round(Math.sin(a) * 120) + "px");
+            sky.appendChild(sp);
+          });
+          reveal();
+        });
+        after(4000, function () { sky.classList.add("out"); });
+        after(4600, function () { sky.remove(); });
+      });
+    });
+  };
+  var deliver = function () {
+    if (delivered) return;
+    delivered = true;
+    if (!sky) { reveal(); return; }
+    // off the card if he isn't yet, back in from the right to its middle, then the scene
+    santa.classList.add("glide");
+    var gone = at_p >= 1.95 ? 0 : 1200;
+    place(2);
+    after(gone, function () {
+      santa.classList.remove("glide");
+      place(0);
+      void santa.offsetWidth; // from there, not from the left
+      santa.classList.add("glide");
+      place(1);
+      after(1400, handOver);
+    });
+  };
+  var maybeDeliver = function () { if (opened && done) setTimeout(deliver, 900); };
+  var songDone = function () { if (done) return; done = true; maybeDeliver(); };
+  song.addEventListener("ended", songDone);
+  song.addEventListener("error", songDone);
+
+  var open = function () {
+    if (opened) return;
+    opened = true;
+    song.play().catch(function () { setTimeout(songDone, 2500); });
+    setTimeout(songDone, 90000); // a song that never finishes loading
+    maybeDeliver();
+    var gift = $("gift");
+    gift.classList.add("opening");
+    setTimeout(function () {
+      gift.classList.add("gone");
+      card.classList.add("shown");
+      requestAnimationFrame(function () { requestAnimationFrame(function () { card.classList.add("in"); }); });
+      music.classList.add("shown");
+      startSky();
+    }, 550);
+  };
+  $("gift").onclick = open;
+  $("gift").onkeydown = function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } };
+
+  // where the browser lets a page play sound by itself, the gift opens with
+  // the music right away; else it waits for the tap
+  var tried = song.play();
+  if (tried && tried.then) tried.then(function () { setTimeout(open, 900); }, function () {});
+})();
+</script>
+</body>
+</html>
