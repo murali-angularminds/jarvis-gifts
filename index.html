@@ -18,7 +18,8 @@
   the side on a birthday; the card takes its colour), pp more photos (one after another), q 0 for no shayari,
   and on either kind: r the sender's email for a reply, w their WhatsApp number, o others who sign it,
   x the buttons on the card turned off (hear, save, video, whatsapp, back, and blow: a birthday's
-  cake; jarvis: Jarvis's voice, none then unless their own; left out: all on),
+  cake; jarvis: Jarvis's voice, none then unless their own; song: the festival's tune, the
+  way Diwali goes then; left out: all on),
   d the day it opens (YYYY-MM-DD: locked with a countdown till then), v their own voice (or, with vk "v",
   video) message in place of Jarvis's, which
   browsers never send to the server. The page shows the
@@ -592,8 +593,8 @@
   document.title = st[3] + " " + st[4] + (to ? ", " + to : "") + "!";
   // a greeting card (no gift in it): 💌 where the gift would be
   var only = data.g === 1, what = only ? "card" : "gift", gem = only ? "💌" : "🎁";
-  // Diwali goes straight to the gift, no tune first
-  var tune = st[0] === "diwali" ? "" : st[5];
+  // Diwali goes straight to the gift, no tune first (so does a card the tune's turned off on)
+  var tune = st[0] === "diwali" || !shows("song") ? "" : st[5];
   // a birthday's a party: balloons up, confetti, a cake to blow out
   var party = st[0] === "birthday";
   var greet = function () { return lang === "hi" && HINDI[st[0]] || st[4]; };
