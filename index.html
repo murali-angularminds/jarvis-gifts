@@ -15,7 +15,7 @@
   (base64url JSON: f festival, t to, n from, a amount, c claim code,
   m message, g 1 for a greeting card with no gift in it, and the greeting
   card's own: h title, l "hi" for a Hindi one, s style, p photo (big, down
-  the side on a birthday; the card takes its colour), pp more photos (one after another), q 0 for no shayari,
+  the side on a birthday; the card takes its colour), pp more photos (one after another; on a gift card too, under its message), q 0 for no shayari,
   and on either kind: r the sender's email for a reply, w their WhatsApp number, o others who sign it,
   x the buttons on the card turned off (hear, save, video, whatsapp, back, and blow: a birthday's
   cake; jarvis: Jarvis's voice, none then unless their own; song: the festival's tune, the
@@ -28,7 +28,8 @@
   left out: all on),
   sg their signature (an SVG path: M / L and numbers), om a few words from each of the others (o),
   d the day it opens (YYYY-MM-DD: locked with a countdown till then), v their own voice (or, with vk "v",
-  video) message in place of Jarvis's, which
+  video) message in place of Jarvis's; or, locked behind a question, only lk 1, f, q the question and
+  s / i / e / k (salt, iv, the card sealed, its tag: see lock_card() in festival_gifts.py), which
   browsers never send to the server. The page shows the
   card the way the email used to and plays the festival's tune: right away
   where the browser allows sound, else at the tap that opens the gift box.
@@ -421,6 +422,17 @@
   .lock h1 { margin: 16px 0 6px; font-size: 26px; }
   .lock p { margin: 0; opacity: .85; }
   .lock .left { margin-top: 18px; display: inline-flex; gap: 10px; }
+  /* a card locked behind their question: the answer opens it */
+  .secret input { display: block; width: min(320px, 100%); margin: 18px auto 10px; padding: 12px 14px; border: 0; border-radius: 12px;
+    font: 16px "Segoe UI", sans-serif; text-align: center; }
+  .secret button { padding: 10px 22px; border: 0; border-radius: 999px; background: #fff; color: #0f172a; font: 700 15px "Segoe UI", sans-serif; cursor: pointer; }
+  .secret button:disabled { opacity: .6; cursor: wait; }
+  .secret .wrong { margin-top: 12px; min-height: 1.3em; color: #fecaca; }
+  .secret.shake { animation: shake .4s; }
+  @keyframes shake { 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
+  /* a gift card's photos, under its message, one after another */
+  .gift-pics { margin: 12px auto 4px; max-width: 320px; }
+  .gift-pics img { display: block; width: 100%; max-height: 260px; object-fit: cover; border-radius: 12px; }
   .lock .left span { min-width: 64px; padding: 10px 6px; border-radius: 12px; background: rgba(255,255,255,.14); font: 800 26px/1.1 "Segoe UI", sans-serif; }
   .lock .left small { display: block; margin-top: 2px; font: 600 10px "Segoe UI", sans-serif; letter-spacing: 1px; opacity: .8; text-transform: uppercase; }
 
@@ -579,6 +591,8 @@
   // card's title and message are the sender's, and stay as they wrote them)
   var T = {
     en: {
+      secretAsk: "Answer this to open your card 🔐", secretPh: "Your answer", secretOpen: "Open 🔓",
+      secretWrong: "Not quite, try again 🙂", secretOld: "This browser can't open locked cards. Try Chrome or Safari.",
       tap: "Tap to open", voucher: "Gift voucher", love: "With love,",
       how: "The sender has told you where to use this code. This page never asks for a password, OTP or card details.",
       about: "A personal greeting card made by a friend. Nothing to sign in to, nothing to install, and no payment or personal details ever asked for.",
@@ -609,6 +623,8 @@
       backSend: "📤 Send", backCopy: "📋 Copy link", backCopied: "Link copied ✓", backText: "{from} sent you a card 💌"
     },
     hi: {
+      secretAsk: "कार्ड खोलने के लिए इसका जवाब दो 🔐", secretPh: "आपका जवाब", secretOpen: "खोलो 🔓",
+      secretWrong: "सही नहीं, फिर कोशिश करो 🙂", secretOld: "यह ब्राउज़र लॉक वाले कार्ड नहीं खोल पाता। Chrome या Safari में खोलो।",
       tap: "खोलने के लिए टैप करें", voucher: "गिफ़्ट वाउचर", love: "ढेर सारे प्यार के साथ,",
       how: "यह कोड कहाँ इस्तेमाल करना है, भेजने वाले ने आपको बताया है। यह पेज कभी पासवर्ड, OTP या कार्ड की जानकारी नहीं माँगता।",
       about: "किसी दोस्त का बनाया एक निजी शुभकामना कार्ड। न कोई लॉगिन, न कुछ इंस्टॉल करना, और न कभी पैसे या निजी जानकारी माँगी जाती है।",
@@ -698,6 +714,109 @@
   // the link's own text: shown as text only, never as markup
   var str = function (v, max) { return String(v == null ? "" : v).slice(0, max); };
   var https = function (v) { return /^https:\/\/[^\s"'<>]+$/.test(v) ? v : ""; };
+
+  // a card locked behind their question (lock_card() in festival_gifts.py): the answer
+  // makes the key (PBKDF2), the tag says whether it's right, then the card's undone
+  var unb64 = function (v) {
+    v = String(v || "").replace(/-/g, "+").replace(/_/g, "/");
+    var b = atob(v + "===".slice((v.length + 3) % 4));
+    return Uint8Array.from(b, function (ch) { return ch.charCodeAt(0); });
+  };
+  var openLocked = function (locked, answer) {
+    var sub = window.crypto && crypto.subtle;
+    if (!sub) return Promise.reject(new Error("old"));
+    var said = String(answer).normalize("NFC").toLowerCase().replace(/\s+/g, " ").trim().slice(0, 80);
+    var salt = unb64(locked.s), iv = unb64(locked.i), sealed = unb64(locked.e), tag = unb64(locked.k);
+    var hmac = function (raw, use) { return sub.importKey("raw", raw, { name: "HMAC", hash: "SHA-256" }, false, [use]); };
+    var bits;
+    return sub.importKey("raw", new TextEncoder().encode(said), "PBKDF2", false, ["deriveBits"])
+      .then(function (k) { return sub.deriveBits({ name: "PBKDF2", salt: salt, iterations: 150000, hash: "SHA-256" }, k, 512); })
+      .then(function (b) {
+        bits = new Uint8Array(b);
+        var signed = new Uint8Array(iv.length + sealed.length);
+        signed.set(iv);
+        signed.set(sealed, iv.length);
+        return hmac(bits.slice(32), "verify").then(function (mk) { return sub.verify("HMAC", mk, tag, signed); });
+      })
+      .then(function (ok) {
+        if (!ok) throw new Error("wrong");
+        return hmac(bits.slice(0, 32), "sign");
+      })
+      .then(function (ek) {
+        var blocks = [];
+        for (var i = 0; i * 32 < sealed.length; i++) {
+          var at = new Uint8Array(iv.length + 4);
+          at.set(iv);
+          new DataView(at.buffer).setUint32(iv.length, i);
+          blocks.push(sub.sign("HMAC", ek, at));
+        }
+        return Promise.all(blocks);
+      })
+      .then(function (parts) {
+        var stream = parts.map(function (p) { return new Uint8Array(p); }), out = new Uint8Array(sealed.length);
+        for (var j = 0; j < sealed.length; j++) out[j] = sealed[j] ^ stream[j >> 5][j & 31];
+        return JSON.parse(new TextDecoder().decode(out));
+      });
+  };
+  var askAnswer = function (locked) {
+    $("gift").hidden = true;
+    var box = el("form", "lock secret");
+    box.appendChild(el("div", "padlock", "🔐"));
+    box.appendChild(el("h1", "", str(locked.q, 120)));
+    box.appendChild(put(el("p"), "secretAsk"));
+    var input = el("input");
+    input.autocomplete = "off";
+    input.maxLength = 80;
+    input.setAttribute("aria-label", t("secretPh"));
+    var go = put(el("button"), "secretOpen");
+    go.type = "submit";
+    var wrong = el("p", "wrong");
+    wrong.setAttribute("aria-live", "polite");
+    [input, go, wrong].forEach(function (e) { box.appendChild(e); });
+    box.onsubmit = function (e) {
+      e.preventDefault();
+      if (!input.value.trim()) { input.focus(); return; }
+      go.disabled = true;
+      wrong.textContent = "";
+      openLocked(locked, input.value).then(function (card) {
+        // open for the rest of this tab: kept in sessionStorage, else put in the link itself
+        try {
+          sessionStorage.setItem("giftOpen", JSON.stringify({ h: location.hash, card: card }));
+        } catch (err) {
+          var raw = new TextEncoder().encode(JSON.stringify(card)), bin = "";
+          raw.forEach(function (b) { bin += String.fromCharCode(b); });
+          location.replace("#" + btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""));
+        }
+        location.reload();
+      }).catch(function (err) {
+        put(wrong, err && err.message === "old" ? "secretOld" : "secretWrong");
+        box.classList.remove("shake");
+        void box.offsetWidth; // again from the start
+        box.classList.add("shake");
+        go.disabled = false;
+        input.select();
+      });
+    };
+    $("bad").before(box);
+    applyLang();
+    input.placeholder = t("secretPh");
+    input.focus();
+  };
+  if (data.lk === 1) {
+    var unlocked = null;
+    try { unlocked = JSON.parse(sessionStorage.getItem("giftOpen") || "null"); } catch (e) { /* private window */ }
+    if (unlocked && unlocked.h === location.hash && unlocked.card && typeof unlocked.card === "object") {
+      data = unlocked.card;
+    } else if (typeof data.q === "string" && data.e) {
+      askAnswer(data);
+      return;
+    } else {
+      $("gift").hidden = true;
+      $("bad").hidden = false;
+      applyLang();
+      return;
+    }
+  }
   var festival = str(data.f, 60), to = str(data.t, 60), from = str(data.n, 60) || "A friend";
   var amount = Number(data.a) || 0, code = str(data.c, 30).replace(/[^A-Za-z0-9-]/g, "").toUpperCase(), message = str(data.m, 600);
   // others who sign it with them (a group card)
@@ -812,6 +931,32 @@
       $("card").classList.add("bare");
       document.querySelector(".wrap").classList.add("wide");
     }
+  }
+  // a gift card's photos, under its message, one after another (a greeting card has its own)
+  var giftPics = only ? [] : (Array.isArray(data.pp) ? data.pp : []).map(function (p) { return https(str(p, 500)); })
+    .filter(Boolean).slice(0, 8);
+  if (giftPics.length) {
+    var picsBox = el("div", "gift-pics"), giftPic = el("img", "gc-photo"), picAt = 0;
+    giftPic.alt = "";
+    giftPic.referrerPolicy = "no-referrer";
+    giftPic.onerror = function () {
+      giftPics.splice(picAt, 1); // not there
+      if (!giftPics.length) { picsBox.remove(); return; }
+      picAt %= giftPics.length;
+      giftPic.src = giftPics[picAt];
+    };
+    giftPic.src = giftPics[0];
+    picsBox.appendChild(giftPic);
+    $("msg").after(picsBox);
+    setInterval(function () {
+      if (giftPics.length < 2 || still()) return;
+      giftPic.classList.add("fading");
+      setTimeout(function () {
+        picAt = (picAt + 1) % giftPics.length;
+        giftPic.src = giftPics[picAt];
+        giftPic.classList.remove("fading");
+      }, 500);
+    }, 3500);
   }
   $("amount").textContent = amount > 0 ? "₹" + amount.toLocaleString("en-IN") : "";
   $("sign").textContent = from;
