@@ -17,6 +17,8 @@
   card's own: h title, l "hi" for a Hindi one, s style, p photo (big, down
   the side on a birthday; the card takes its colour), pp more photos (one after another), q 0 for no shayari,
   and on either kind: r the sender's email for a reply, w their WhatsApp number, o others who sign it,
+  x the buttons on the card turned off (hear, save, video, whatsapp, back, and blow: a birthday's
+  cake; left out: all on),
   d the day it opens (YYYY-MM-DD: locked with a countdown till then), v their own voice (or, with vk "v",
   video) message in place of Jarvis's, which
   browsers never send to the server. The page shows the
@@ -565,6 +567,9 @@
   var phone = str(data.w, 20).replace(/\D/g, "");
   if (phone.length < 8) phone = "";
   var media = https(str(data.v, 500)), video = Boolean(media) && data.vk === "v";
+  // the buttons under the card the sender turned off
+  var off = Array.isArray(data.x) ? data.x : [];
+  var shows = function (action) { return off.indexOf(action) < 0; };
 
   var low = festival.toLowerCase();
   var st = STYLES.filter(function (s) { return low.indexOf(s[0]) !== -1; })[0] ||
@@ -720,11 +725,13 @@
   // the buttons under a card: 💬 a thank-you on WhatsApp, 💌 one by email,
   // and a card back to them, made right here
   var replies = function (tools) {
-    var wa = put(el("a", "gc-btn"), "whatsapp");
-    wa.target = "_blank"; wa.rel = "noopener";
-    wa.onclick = function () { wa.href = "https://wa.me/" + phone + "?text=" + encodeURIComponent(t("thanksBody", { from: from })); };
-    wa.href = "https://wa.me/" + phone;
-    tools.appendChild(wa);
+    if (shows("whatsapp")) {
+      var wa = put(el("a", "gc-btn"), "whatsapp");
+      wa.target = "_blank"; wa.rel = "noopener";
+      wa.onclick = function () { wa.href = "https://wa.me/" + phone + "?text=" + encodeURIComponent(t("thanksBody", { from: from })); };
+      wa.href = "https://wa.me/" + phone;
+      tools.appendChild(wa);
+    }
     var reply = str(data.r, 120);
     if (/^[^\s@<>"]+@[^\s@<>"]+\.[^\s@<>"]+$/.test(reply)) {
       var thanks = put(el("a", "gc-btn"), "thanks");
@@ -735,6 +742,7 @@
       thanks.href = "mailto:" + reply;
       tools.appendChild(thanks);
     }
+    if (!shows("back")) return;
     var back = put(el("button", "gc-btn"), "back"), panel = null;
     back.onclick = function () {
       if (panel) { panel.hidden = !panel.hidden; return; }
@@ -859,7 +867,7 @@
       into = el("div", "gc-body");
       m.appendChild(into);
     }
-    if (party) into.appendChild(makeCake());
+    if (party && shows("blow")) into.appendChild(makeCake());
     else if (!img) into.appendChild(line("gc-mark", st[3])); // the photo heads the card instead
     var head = line("gc-title", title);
     if (/[ऀ-ॿ]/.test(title)) head.className += " hi";
@@ -891,15 +899,23 @@
 
     // 🔊 again, the card as a picture or a video (to share), a thank-you, a card back
     var tools = el("div", "gc-tools");
-    var hear = put(el("button", "gc-btn"), "hear");
-    hear.onclick = say;
-    var share = put(el("button", "gc-btn"), navigator.share ? "share" : "save");
-    share.onclick = function () { saveCard(m, share); };
-    var film = put(el("button", "gc-btn"), "video");
-    film.onclick = function () { makeVideo(m, film); };
-    tools.appendChild(hear); tools.appendChild(share); tools.appendChild(film);
+    if (shows("hear")) {
+      var hear = put(el("button", "gc-btn"), "hear");
+      hear.onclick = say;
+      tools.appendChild(hear);
+    }
+    if (shows("save")) {
+      var share = put(el("button", "gc-btn"), navigator.share ? "share" : "save");
+      share.onclick = function () { saveCard(m, share); };
+      tools.appendChild(share);
+    }
+    if (shows("video")) {
+      var film = put(el("button", "gc-btn"), "video");
+      film.onclick = function () { makeVideo(m, film); };
+      tools.appendChild(film);
+    }
     replies(tools);
-    into.appendChild(tools);
+    if (tools.firstChild) into.appendChild(tools);
 
     var cover = el("div", "gc-cover");
     cover.appendChild(line("big", st[3]));
@@ -918,11 +934,13 @@
     var mine = moment($("card"));
     if (mine) $("voucher").appendChild(mine);
     var tools = el("div", "gc-tools");
-    var hear = put(el("button", "gc-btn"), "hear");
-    hear.onclick = say;
-    tools.appendChild(hear);
+    if (shows("hear")) {
+      var hear = put(el("button", "gc-btn"), "hear");
+      hear.onclick = say;
+      tools.appendChild(hear);
+    }
     replies(tools);
-    $("voucher").appendChild(tools);
+    if (tools.firstChild) $("voucher").appendChild(tools);
   }
   // the card opens like a book, its message types itself out
   var openBook = function () {
@@ -1372,7 +1390,7 @@
     wrap.appendChild(cake); wrap.appendChild(hint); wrap.appendChild(row);
     return wrap;
   }
-  if (party && !only) $("voucher").insertBefore(makeCake(), $("voucher").firstChild);
+  if (party && !only && shows("blow")) $("voucher").insertBefore(makeCake(), $("voucher").firstChild);
   var sayLater = 0;
   var reveal = function () {
     $("wait").hidden = true;
