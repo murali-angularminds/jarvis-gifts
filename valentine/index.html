@@ -20,7 +20,7 @@
   the side on a birthday; the card takes its colour), pp more photos (one after another), q 0 for no shayari,
   and on either kind: r the sender's email for a reply, w their WhatsApp number, o others who sign it,
   x the buttons on the card turned off (hear, save, video, whatsapp, back, and blow: a birthday's
-  cake; left out: all on),
+  cake; jarvis: Jarvis's voice, none then unless their own; left out: all on),
   d the day it opens (YYYY-MM-DD: locked with a countdown till then), v their own voice (or, with vk "v",
   video) message in place of Jarvis's, which
   browsers never send to the server. The page shows the
@@ -692,10 +692,12 @@
   }
   // Jarvis's voice as the gift opens (and again at the message's 🔊); their
   // own voice instead, when they sent one (Jarvis's if it doesn't load)
-  var voice = $("voice");
-  var jarvis = "voices/" + st[5] + (only ? "-wish" : "") + ".mp3?v=" + AUDIO;
-  voice.src = media && !video ? media : jarvis;
-  voice.onerror = function () { if (voice.src.indexOf("voices/") === -1) voice.src = jarvis; };
+  // (Jarvis turned off and none of their own: nothing speaks, no 🔊)
+  var voice = $("voice"), talks = Boolean(media) || shows("jarvis");
+  var jarvis = shows("jarvis") ? "voices/" + st[5] + (only ? "-wish" : "") + ".mp3?v=" + AUDIO : "";
+  if (media && !video) voice.src = media;
+  else if (jarvis) voice.src = jarvis;
+  voice.onerror = function () { if (jarvis && voice.src.indexOf("voices/") === -1) voice.src = jarvis; };
   // their video message, played where Jarvis would speak
   var ownVideo = null;
   if (video) {
@@ -710,6 +712,7 @@
   crackers.src = "sounds/crackers.mp3?v=" + AUDIO;
   var bang = function () { crackers.currentTime = 0; crackers.play().catch(function () {}); };
   var say = function () {
+    if (!talks) return;
     song.pause();
     if (ownVideo) { voice.pause(); ownVideo.currentTime = 0; ownVideo.play().catch(function () {}); return; }
     voice.currentTime = 0; voice.play().catch(function () {});
@@ -901,7 +904,7 @@
 
     // 🔊 again, the card as a picture or a video (to share), a thank-you, a card back
     var tools = el("div", "gc-tools");
-    if (shows("hear")) {
+    if (talks && shows("hear")) {
       var hear = put(el("button", "gc-btn"), "hear");
       hear.onclick = say;
       tools.appendChild(hear);
@@ -927,7 +930,8 @@
   } else {
     if (message) {
       var m = el("div", "msg");
-      m.appendChild(again); m.appendChild(document.createTextNode(message));
+      if (talks) m.appendChild(again);
+      m.appendChild(document.createTextNode(message));
       $("msg").appendChild(m);
     }
     if (ownVideo) $("msg").appendChild(ownVideo);
@@ -936,7 +940,7 @@
     var mine = moment($("card"));
     if (mine) $("voucher").appendChild(mine);
     var tools = el("div", "gc-tools");
-    if (shows("hear")) {
+    if (talks && shows("hear")) {
       var hear = put(el("button", "gc-btn"), "hear");
       hear.onclick = say;
       tools.appendChild(hear);
