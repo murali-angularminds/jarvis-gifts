@@ -21,7 +21,14 @@
   and on either kind: r the sender's email for a reply, w their WhatsApp number, o others who sign it,
   x the buttons on the card turned off (hear, save, video, whatsapp, back, and blow: a birthday's
   cake; jarvis: Jarvis's voice, none then unless their own; song: the festival's tune, the
-  way Diwali goes then; left out: all on),
+  way Diwali goes then; tilt: the card in 3D; and more 3D: flip (a back to the card), popup (things
+  stand up as it opens), frame (the photo deep in a frame), box3d (a 3D gift box), env3d (a 3D envelope),
+  depth (the background near and far), confetti3d; and: scratchpic (the photo under a silver layer),
+  micblow (blow the candles out into the mic), game (catch what falls), ring (the photos on a turning
+  ring), flipclock (the countdown in 3D), react (an emoji back on WhatsApp), seen (asks whether to tell
+  them it's opened), blowsong (the birthday song once the candles are out, even with the tune off);
+  left out: all on),
+  sg their signature (an SVG path: M / L and numbers), om a few words from each of the others (o),
   d the day it opens (YYYY-MM-DD: locked with a countdown till then), v their own voice (or, with vk "v",
   video) message in place of Jarvis's, which
   browsers never send to the server. The page shows the
@@ -237,6 +244,129 @@
   .wait .notes { display: inline-block; animation: bob 1.4s ease-in-out infinite; }
   .voucher { opacity: 0; transform: scale(.85); transition: opacity .6s, transform .6s cubic-bezier(.2, 1.4, .4, 1); }
   .voucher.in { opacity: 1; transform: none; }
+  /* 3D: the card leans toward the pointer (or the phone's tilt), its photo,
+     cake and title a step nearer, a glare across it; flat for "Save" */
+  .tilt3d, .card.in.tilt3d { position: relative; transform: perspective(1200px) rotateX(calc(var(--py, 0) * -7deg)) rotateY(calc(var(--px, 0) * 9deg));
+                             transition: transform .25s ease-out; }
+  .tilt3d .gc-photo, .tilt3d .cake, .tilt3d .gc-mark, .tilt3d .mark { translate: calc(var(--px, 0) * 10px) calc(var(--py, 0) * 8px); transition: translate .25s ease-out; }
+  .tilt3d .gc-title, .tilt3d .gc-quote { translate: calc(var(--px, 0) * 5px) calc(var(--py, 0) * 4px); transition: translate .25s ease-out; }
+  .tilt3d > .glare { position: absolute; inset: 0; z-index: 5; border-radius: 14px; pointer-events: none;
+                     background: radial-gradient(circle at calc(50% + var(--px, 0) * 45%) calc(50% + var(--py, 0) * 45%), rgba(255,255,255,.22), transparent 55%); }
+  .flat .tilt3d { transform: none !important; transition: none; }
+  .flat .tilt3d * { translate: none !important; transition: none !important; }
+  .flat .tilt3d > .glare { display: none; }
+  /* flip: the card turns over to its back */
+  .gc-flip { position: relative; transform-style: preserve-3d; transition: transform .9s cubic-bezier(.4, .1, .2, 1); }
+  .gc-flip.over { transform: rotateY(180deg); }
+  .gc-flip > .gcard { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+  .gc-back { position: absolute; inset: 0; transform: rotateY(180deg); display: flex; flex-direction: column; align-items: center;
+             justify-content: center; overflow: auto; }
+  .flat .gc-flip { transform: none !important; transition: none; }
+  .flat .gc-back { display: none; }
+  /* pop-up: the festival's things stand up off the page as the card opens */
+  .gc-pop { display: flex; justify-content: center; align-items: flex-end; gap: 16px; margin-bottom: 6px; }
+  .gc-pop span { display: inline-block; font-size: 30px; line-height: 1; transform-origin: 50% 100%; opacity: 0; }
+  .gc-pop span:nth-child(2) { font-size: 42px; }
+  .gbook.open .gc-pop span { animation: popup .8s cubic-bezier(.2, 1.5, .4, 1) 1.2s forwards; }
+  .gbook.open .gc-pop span:nth-child(2) { animation-delay: 1.35s; }
+  .gbook.open .gc-pop span:nth-child(3) { animation-delay: 1.5s; }
+  .gbook.popup.open .cake-wrap, .gbook.popup.open .gc-photo { transform-origin: 50% 100%; animation: popup .9s cubic-bezier(.2, 1.4, .4, 1) 1.1s both; }
+  .gbook.popup.open .gc-mark { transform-origin: 50% 100%; animation: popup .9s cubic-bezier(.2, 1.4, .4, 1) 1.1s both, glow 2.4s ease-in-out 2s infinite; }
+  @keyframes popup { from { transform: perspective(500px) rotateX(-88deg); opacity: 0; } 40% { opacity: 1; } to { transform: perspective(500px) rotateX(0); opacity: 1; } }
+  .flat .gc-pop span, .flat .popup .cake-wrap, .flat .popup .gc-photo, .flat .popup .gc-mark { animation: none !important; opacity: 1 !important; }
+  /* the photo deep in its frame: it shifts behind it as the page leans */
+  .gc-frame { position: relative; overflow: hidden; }
+  .gc-frame.wide { height: 240px; }
+  .gc-frame::after { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+                     box-shadow: inset 0 8px 20px rgba(0,0,0,.45), inset 0 0 0 1px rgba(255,255,255,.4); }
+  .gc-in { position: absolute; left: -8%; top: -8%; width: 116%; height: 116%; object-fit: cover; transition: opacity .5s, translate .3s ease-out;
+           translate: calc(var(--px, 0) * -12px) calc(var(--py, 0) * -9px); }
+  .gc-in.fading { opacity: 0; }
+  .flat .gc-in { translate: none !important; }
+  /* a gift box in 3D: it turns, its lid flies off as it opens */
+  .cube { display: inline-block; width: 1em; height: 1em; perspective: 4em; vertical-align: middle; }
+  .cube > b { position: relative; display: block; width: 100%; height: 100%; transform-style: preserve-3d; animation: turn3d 7s linear infinite; }
+  .cube i { position: absolute; inset: 0; border-radius: .04em; box-shadow: inset 0 0 .18em rgba(0,0,0,.35);
+            background: linear-gradient(90deg, transparent 43%, #fde047 43% 57%, transparent 57%), linear-gradient(135deg, var(--c1), var(--c2)); }
+  .cube .f1 { transform: translateZ(.5em); }
+  .cube .f2 { transform: rotateY(180deg) translateZ(.5em); }
+  .cube .f3 { transform: rotateY(90deg) translateZ(.5em); }
+  .cube .f4 { transform: rotateY(-90deg) translateZ(.5em); }
+  .cube .f5 { transform: rotateX(-90deg) translateZ(.5em); }
+  .cube .lid { transform: rotateX(90deg) translateZ(.5em); transition: transform .5s cubic-bezier(.3, 1.4, .5, 1);
+               background: linear-gradient(90deg, transparent 43%, #fde047 43% 57%, transparent 57%),
+                           linear-gradient(0deg, transparent 43%, #fde047 43% 57%, transparent 57%), linear-gradient(135deg, var(--c1), var(--c2)); }
+  @keyframes turn3d { from { transform: rotateX(-24deg) rotateY(0); } to { transform: rotateX(-24deg) rotateY(360deg); } }
+  .gift.opening .cube .lid, .drop.burst .cube .lid { transform: rotateX(90deg) translateZ(1.6em) rotateZ(40deg); }
+  /* the envelope in 3D: it swings in, sways, and the card rises out of it */
+  .env.env3d { animation: envin 1s cubic-bezier(.2, 1.2, .4, 1) both, envsway 3s 1s ease-in-out infinite; }
+  @keyframes envin { from { transform: perspective(4em) rotateY(-75deg) rotateX(30deg) scale(.5); } to { transform: perspective(4em); } }
+  @keyframes envsway { 0%, 100% { transform: perspective(4em); } 50% { transform: perspective(4em) rotateY(16deg) rotateX(8deg); } }
+  .env.env3d.open { animation: none; }
+  .env.env3d.open .letter { transform: translateY(-.8em) scale(1.12); box-shadow: 0 .06em .2em rgba(0,0,0,.3); }
+  /* the background in depth: far things small, dim and soft, near ones big; they shift apart as the page leans */
+  .fx-layer { position: absolute; inset: -40px; transition: translate .4s ease-out; }
+  .fx-layer.d0 { filter: blur(1.5px); opacity: .5; translate: calc(var(--px, 0) * -6px) calc(var(--py, 0) * -4px); }
+  .fx-layer.d1 { opacity: .85; translate: calc(var(--px, 0) * -16px) calc(var(--py, 0) * -10px); }
+  .fx-layer.d2 { translate: calc(var(--px, 0) * -34px) calc(var(--py, 0) * -22px); }
+  /* confetti in 3D: each piece tumbles, some near, some far */
+  .confetti.c3d { perspective: 800px; }
+  .confetti.c3d i { animation-name: drop3d; }
+  @keyframes drop3d { to { transform: translate(var(--sway), 110vh) rotateX(var(--rx)) rotateY(var(--ry)) rotate(var(--spin)); } }
+  /* the photo under a silver layer, scratched off (a frame with no shift when "frame" is off) */
+  .gc-frame.plain::after { display: none; }
+  .gc-frame.plain .gc-in { translate: none; left: 0; top: 0; width: 100%; height: 100%; }
+  .gc-frame canvas { position: absolute; inset: 0; z-index: 2; width: 100%; height: 100%; cursor: pointer; touch-action: none; transition: opacity .6s; }
+  .gc-frame canvas.off { opacity: 0; pointer-events: none; }
+  /* all the photos on a ring, turning in 3D */
+  .gc-ring { position: relative; height: 140px; margin: 18px auto 4px; perspective: 900px; }
+  .gc-ring > div { position: absolute; left: 50%; top: 12px; width: 90px; height: 110px; margin-left: -45px; transform-style: preserve-3d;
+                   animation: ring 16s linear infinite; }
+  .gc-ring img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 10px; border: 3px solid #fff;
+                 box-shadow: 0 6px 16px rgba(15,23,42,.3); }
+  @keyframes ring { from { transform: rotateY(0); } to { transform: rotateY(-360deg); } }
+  /* the countdown in 3D: the padlock swings, each number flips in */
+  .lock.flip3d .padlock { animation: lockspin 4s ease-in-out infinite; }
+  @keyframes lockspin { 0%, 100% { transform: perspective(400px) rotateY(-25deg); } 50% { transform: perspective(400px) rotateY(25deg); } }
+  .lock.flip3d .left span { perspective: 300px; background: linear-gradient(180deg, rgba(255,255,255,.22) 50%, rgba(255,255,255,.1) 50%);
+                            box-shadow: 0 6px 0 rgba(0,0,0,.3), 0 12px 24px rgba(0,0,0,.3); }
+  .lock.flip3d .left b { display: block; }
+  .lock.flip3d .left b.turn { animation: flipnum .5s ease-out; }
+  @keyframes flipnum { from { transform: rotateX(90deg); opacity: .3; } to { transform: none; opacity: 1; } }
+  /* their signature; the others' few words, as sticky notes */
+  .sig { display: block; width: 150px; height: 60px; margin: 2px auto 0; color: #0f172a; }
+  .sig path { fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+  .royal .sig { color: #fff3d6; }
+  .gc-notes { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin: 16px auto 0; }
+  .note { width: 150px; padding: 10px 10px 8px; background: #fef08a; color: #422006; text-align: left; transform: rotate(var(--r, 0deg));
+          box-shadow: 0 6px 12px rgba(0,0,0,.18); font: 15px/1.4 "Kalam", "Segoe Print", cursive; }
+  .note:nth-child(3n+2) { background: #fbcfe8; }
+  .note:nth-child(3n) { background: #bae6fd; }
+  .note p { margin: 0; white-space: pre-line; }
+  .note b { display: block; margin-top: 6px; font-size: 12px; text-align: right; }
+  /* an emoji back on WhatsApp */
+  .reacts { flex-basis: 100%; display: flex; justify-content: center; gap: 6px; }
+  .react { font-size: 24px; line-height: 1; padding: 4px; border: 0; background: none; cursor: pointer; transition: transform .2s; }
+  .react:hover { transform: scale(1.25) translateY(-3px); }
+  .react.hit { animation: hit .5s; }
+  @keyframes hit { 50% { transform: scale(1.6) rotate(-10deg); } }
+  /* the little game: catch what falls */
+  .game { position: fixed; inset: 0; z-index: 40; background: rgba(7,10,20,.8); overflow: hidden; touch-action: manipulation; }
+  .game-head { position: absolute; left: 0; right: 0; top: 12px; z-index: 2; display: flex; justify-content: center; align-items: center; gap: 14px;
+               color: #fff; font: 700 16px "Segoe UI", sans-serif; }
+  .game-thing { position: absolute; top: -60px; font-size: 42px; line-height: 1; padding: 0; border: 0; background: none; cursor: pointer;
+                animation: gamefall linear forwards; transition: scale .3s, opacity .3s; }
+  .game-thing.got { scale: 1.8; opacity: 0; animation-play-state: paused; }
+  @keyframes gamefall { to { transform: translateY(calc(100vh + 80px)) rotate(200deg); } }
+  .game-end { position: absolute; left: 50%; top: 50%; z-index: 3; transform: translate(-50%, -50%); text-align: center; color: #fff;
+              font: 800 26px "Segoe UI", sans-serif; }
+  .game-end .gc-btn { margin-top: 14px; }
+  /* asks (never on its own) whether to tell them it's been opened */
+  .seen { position: fixed; left: 50%; top: 16px; z-index: 32; transform: translateX(-50%); width: max-content; max-width: calc(100% - 32px);
+          padding: 12px 16px; border-radius: 14px; background: #fff; color: #0f172a; text-align: center; font: 600 14px "Segoe UI", sans-serif;
+          box-shadow: 0 10px 30px rgba(0,0,0,.35); animation: seenin .4s ease-out; }
+  .seen .gc-tools { margin-top: 8px; }
+  @keyframes seenin { from { transform: translate(-50%, -20px); opacity: 0; } }
   @keyframes bob { 50% { transform: translateY(-4px); } }
 
   /* the delivery, inside the card: Santa's sleigh (or the festival's own: diyas, balloons,
@@ -460,7 +590,11 @@
       listenGift: "Listen… your gift is on its way!", listenCard: "Listen… your card is on its way!",
       wayGift: "Your gift is on its way!", wayCard: "Your card is on its way!",
       code: "Gift code", copy: "Copy", copied: "Copied ✓", selcopy: "Select & copy", later: "Your gift code will reach you separately.",
-      scratch: "Scratch here ✨", hear: "🔊 Listen", share: "📤 Share", save: "⬇ Save", failed: "😕 Couldn't make it",
+      scratch: "Scratch here ✨", hear: "🔊 Listen", flip: "🔄 Turn over", flipBack: "🔄 Front", backNote: "Made just for you 💝",
+      scratchPic: "Scratch to see the photo ✨", micBlow: "🎤 Blow (mic)", micNow: "Blow into the mic now… 🌬️", micNo: "😕 No mic",
+      game: "🎮 Catch game", caught: "Caught: {n}", gameOver: "You caught {n}! 🎉", playAgain: "🔁 Play again", gameClose: "✖ Close",
+      reactBody: "Loved your card, {from}!", seenAsk: "Let {from} know you've opened it?", seenYes: "💬 Yes, on WhatsApp",
+      seenNo: "No, thanks", seenBody: "I opened your card, {from}! 💌", share: "📤 Share", save: "⬇ Save", failed: "😕 Couldn't make it",
       video: "🎬 Video", making: "🎬 Making…", thanks: "💌 Say thanks", thanksBody: "Thank you so much, {from}! 🙏",
       whatsapp: "💬 WhatsApp", here: "Here you go, for you! {gem}", sound: "🔊 Tap anywhere for sound",
       blow: "🕯️ Blow!",
@@ -486,7 +620,11 @@
       listenGift: "सुनिए… आपका तोहफ़ा आ रहा है!", listenCard: "सुनिए… आपका कार्ड आ रहा है!",
       wayGift: "आपका तोहफ़ा आ रहा है!", wayCard: "आपका कार्ड आ रहा है!",
       code: "गिफ़्ट कोड", copy: "कॉपी", copied: "कॉपी हो गया ✓", selcopy: "चुनकर कॉपी करें", later: "आपका गिफ़्ट कोड अलग से पहुँचेगा।",
-      scratch: "यहाँ घिसो ✨", hear: "🔊 सुनो", share: "📤 शेयर", save: "⬇ सेव", failed: "😕 नहीं बना",
+      scratch: "यहाँ घिसो ✨", hear: "🔊 सुनो", flip: "🔄 पलटो", flipBack: "🔄 आगे", backNote: "सिर्फ़ आपके लिए 💝",
+      scratchPic: "फ़ोटो देखने के लिए घिसो ✨", micBlow: "🎤 फूँको (माइक)", micNow: "अब माइक में फूँक मारो… 🌬️", micNo: "😕 माइक नहीं मिला",
+      game: "🎮 पकड़ो गेम", caught: "पकड़े: {n}", gameOver: "आपने {n} पकड़े! 🎉", playAgain: "🔁 फिर खेलो", gameClose: "✖ बंद करो",
+      reactBody: "आपका कार्ड बहुत पसंद आया, {from}!", seenAsk: "{from} को बता दें कि आपने कार्ड खोल लिया?", seenYes: "💬 हाँ, WhatsApp पर",
+      seenNo: "नहीं, रहने दो", seenBody: "मैंने आपका कार्ड खोल लिया, {from}! 💌", share: "📤 शेयर", save: "⬇ सेव", failed: "😕 नहीं बना",
       video: "🎬 वीडियो", making: "🎬 बन रहा है…", thanks: "💌 शुक्रिया बोलो", thanksBody: "बहुत-बहुत शुक्रिया, {from}! 🙏",
       whatsapp: "💬 WhatsApp", here: "ये लो, आपके लिए! {gem}", sound: "🔊 आवाज़ के लिए कहीं भी टैप करो",
       blow: "🕯️ फूँक मारो!",
@@ -565,7 +703,33 @@
   var festival = str(data.f, 60), to = str(data.t, 60), from = str(data.n, 60) || "A friend";
   var amount = Number(data.a) || 0, code = str(data.c, 30).replace(/[^A-Za-z0-9-]/g, "").toUpperCase(), message = str(data.m, 600);
   // others who sign it with them (a group card)
-  var others = (Array.isArray(data.o) ? data.o : []).map(function (n) { return str(n, 40).trim(); }).filter(Boolean).slice(0, 10);
+  var oms = Array.isArray(data.om) ? data.om : [];
+  var signers = (Array.isArray(data.o) ? data.o : []).map(function (n, i) { return { name: str(n, 40).trim(), note: str(oms[i], 140).trim() }; })
+    .filter(function (s) { return s.name; }).slice(0, 10);
+  var others = signers.map(function (s) { return s.name; });
+  // their signature, drawn in the form (only M / L and numbers: never markup)
+  var SIG = /^[ML0-9 ]{1,3000}$/.test(str(data.sg, 3000)) ? str(data.sg, 3000) : "";
+  var signature = function () {
+    var ns = "http://www.w3.org/2000/svg", svg = document.createElementNS(ns, "svg"), p = document.createElementNS(ns, "path");
+    svg.setAttribute("viewBox", "0 0 200 80"); svg.setAttribute("class", "sig"); svg.setAttribute("aria-hidden", "true");
+    p.setAttribute("d", SIG);
+    svg.appendChild(p);
+    return svg;
+  };
+  // the others' few words, as sticky notes (none: null)
+  var stickies = function () {
+    var said = signers.filter(function (s) { return s.note; });
+    if (!said.length) return null;
+    var box = el("div", "gc-notes");
+    said.forEach(function (s, i) {
+      var n = el("div", "note");
+      n.style.setProperty("--r", (i % 2 ? 2.5 : -2.5) + "deg");
+      n.appendChild(el("p", "", s.note));
+      n.appendChild(el("b", "", "— " + s.name));
+      box.appendChild(n);
+    });
+    return box;
+  };
   // their WhatsApp number (for the thank-you), and their own voice or video
   var phone = str(data.w, 20).replace(/\D/g, "");
   if (phone.length < 8) phone = "";
@@ -573,6 +737,29 @@
   // the buttons under the card the sender turned off
   var off = Array.isArray(data.x) ? data.x : [];
   var shows = function (action) { return off.indexOf(action) < 0; };
+  // 3D: --px, --py (-1 … 1) on the page, from the mouse or the way the phone's held;
+  // the card leans by them (tilt), the background's layers shift (depth), the photo in its frame (frame)
+  if (!still() && (shows("tilt") || shows("depth") || shows("frame"))) {
+    var near = function (n) { return Math.max(-1, Math.min(1, n)); };
+    var lean = function (x, y) {
+      document.documentElement.style.setProperty("--px", near(x).toFixed(3));
+      document.documentElement.style.setProperty("--py", near(y).toFixed(3));
+    };
+    window.addEventListener("pointermove", function (e) {
+      if (e.pointerType !== "mouse") return;
+      lean((e.clientX / innerWidth * 2 - 1) * 1.5, (e.clientY / innerHeight * 2 - 1) * 1.5);
+    });
+    document.addEventListener("mouseleave", function () { lean(0, 0); });
+    window.addEventListener("deviceorientation", function (e) {
+      if (e.gamma == null) return;
+      lean(e.gamma / 25, (e.beta - 45) / 25); // held at ~45° is level
+    });
+  }
+  var tilt3d = function (box) {
+    if (!shows("tilt") || still()) return;
+    box.classList.add("tilt3d");
+    box.appendChild(el("div", "glare no-shot"));
+  };
 
   var low = festival.toLowerCase();
   var st = STYLES.filter(function (s) { return low.indexOf(s[0]) !== -1; })[0] ||
@@ -605,9 +792,13 @@
   put($("giftTitle"), "title", { greet: greet, to: to ? ", " + to : "" });
   put($("giftFrom"), only ? "sentCard" : "sentGift", { from: fromAll });
   // the envelope (our own markup; the mark is from STYLES, never from the link)
-  var ENV = '<span class="env"><span class="back"></span><span class="letter"></span><span class="front"></span>' +
+  var ENV = '<span class="env' + (shows("env3d") && !still() ? " env3d" : "") + '"><span class="back"></span><span class="letter"></span><span class="front"></span>' +
     '<span class="flap"></span><span class="seal">' + st[3] + '</span></span>';
+  // the gift box in 3D (our own markup too)
+  var CUBE = shows("box3d") && !still() ? '<span class="cube"><b><i class="f1"></i><i class="f2"></i><i class="f3"></i>' +
+    '<i class="f4"></i><i class="f5"></i><i class="lid"></i></b></span>' : "";
   if (only) document.querySelector("#gift .box").innerHTML = ENV;
+  else if (CUBE) document.querySelector("#gift .box").innerHTML = CUBE;
   else document.querySelector("#gift .box").textContent = gem;
   $("mark").textContent = st[3];
   put($("greet"), "title", { greet: greet, to: "" });
@@ -627,8 +818,12 @@
   $("amount").textContent = amount > 0 ? "₹" + amount.toLocaleString("en-IN") : "";
   $("sign").textContent = from;
   if (others.length) document.querySelector(".sign").appendChild(put(el("span", "group"), "alsoSign", { names: others.join(", ") }));
+  // (a greeting card signs inside itself, not here)
+  if (SIG && !only) $("sign").after(signature());
+  var giftNotes = !only && stickies();
+  if (giftNotes) document.querySelector(".sign").appendChild(giftNotes);
 
-  var scratchUp = null; // the claim code's silver layer, drawn once the voucher shows
+  var scratchUp = null, picUp = null; // the claim code's silver layer, drawn once the voucher shows
   if (code) {
     var box = el("div", "code");
     var copy = put(el("button"), "copy");
@@ -647,7 +842,7 @@
   }
   // the claim code under a silver layer, scratched off with a finger (Enter
   // on it, for a keyboard); returns what draws it, once it has a size
-  function scratchify(wrap) {
+  function scratchify(wrap, key) {
     var cv = el("canvas"), g = null, rubs = 0, gone = false, down = false;
     cv.tabIndex = 0;
     cv.setAttribute("role", "button");
@@ -687,7 +882,7 @@
       silver.addColorStop(0, "#cbd5e1"); silver.addColorStop(0.5, "#f8fafc"); silver.addColorStop(1, "#94a3b8");
       g.fillStyle = silver; g.fillRect(0, 0, w, h);
       g.fillStyle = "#475569"; g.font = "700 16px Segoe UI, sans-serif"; g.textAlign = "center"; g.textBaseline = "middle";
-      g.fillText(t("scratch"), w / 2, h / 2);
+      g.fillText(t(key || "scratch"), w / 2, h / 2);
       g.globalCompositeOperation = "destination-out";
     };
   }
@@ -730,7 +925,64 @@
   };
   // the buttons under a card: 💬 a thank-you on WhatsApp, 💌 one by email,
   // and a card back to them, made right here
+  // an emoji back on WhatsApp, in a tap
+  var reactions = function () {
+    var row = el("div", "reacts no-shot");
+    ["❤️", "😂", "🥹", "🤗", "🎉"].forEach(function (e) {
+      var b = el("button", "react", e);
+      b.setAttribute("aria-label", "React " + e);
+      b.onclick = function () {
+        b.classList.remove("hit"); void b.offsetWidth; b.classList.add("hit");
+        window.open("https://wa.me/" + phone + "?text=" + encodeURIComponent(e + " " + t("reactBody", { from: from })), "_blank", "noopener");
+      };
+      row.appendChild(b);
+    });
+    return row;
+  };
+  // a little game: catch what falls, for 20 seconds
+  var game = function () {
+    var box = el("div", "game no-shot"), head = el("div", "game-head"), score = 0, left = 20;
+    var count = el("span"), time = el("span"), quit = put(el("button", "gc-btn"), "gameClose");
+    head.appendChild(count); head.appendChild(time); head.appendChild(quit);
+    box.appendChild(head);
+    document.body.appendChild(box);
+    var things = [st[6], st[3], "🎁", "⭐"];
+    var show = function () { put(count, "caught", { n: score }); time.textContent = "⏱ " + left; };
+    show();
+    var drop = setInterval(function () {
+      var b = el("button", "game-thing", things[Math.floor(Math.random() * things.length)]);
+      b.style.left = 5 + Math.random() * 85 + "%";
+      b.style.animationDuration = 2.4 + Math.random() * 1.6 + "s";
+      b.onpointerdown = function () {
+        if (b.disabled) return;
+        b.disabled = true; score++; show(); buzz(20);
+        b.classList.add("got");
+        setTimeout(function () { b.remove(); }, 300);
+      };
+      b.addEventListener("animationend", function () { b.remove(); });
+      box.appendChild(b);
+    }, 450);
+    var stop = function () { clearInterval(clock); clearInterval(drop); box.remove(); };
+    var clock = setInterval(function () {
+      left--; show();
+      if (left > 0) return;
+      clearInterval(clock); clearInterval(drop);
+      var end = el("div", "game-end"), more = put(el("button", "gc-btn"), "playAgain");
+      end.appendChild(put(el("div"), "gameOver", { n: score }));
+      more.onclick = function () { stop(); game(); };
+      end.appendChild(more);
+      box.appendChild(end);
+      confetti(80);
+    }, 1000);
+    quit.onclick = stop;
+  };
   var replies = function (tools) {
+    if (shows("react")) tools.appendChild(reactions());
+    if (shows("game")) {
+      var play = put(el("button", "gc-btn no-shot"), "game");
+      play.onclick = game;
+      tools.appendChild(play);
+    }
     if (shows("whatsapp")) {
       var wa = put(el("a", "gc-btn"), "whatsapp");
       wa.target = "_blank"; wa.rel = "noopener";
@@ -846,12 +1098,21 @@
         // no CORS there: show it all the same (only "Save" leaves it out)
         if (img.crossOrigin) { img.removeAttribute("crossorigin"); img.src = photos[shown]; return; }
         photos.splice(shown, 1); // not there at all
-        if (!photos.length) { img.remove(); return; }
+        if (!photos.length) { (frame || img).remove(); return; }
         shown %= photos.length;
         img.src = photos[shown];
       };
       img.src = photos[0];
-      m.appendChild(img);
+      // the photo deep in a frame: it shifts behind it as the page leans
+      var frame = null;
+      var deep = shows("frame") && !still();
+      if (deep || shows("scratchpic")) {
+        frame = el("div", img.className + " gc-frame" + (deep ? "" : " plain"));
+        img.className = "gc-in";
+        frame.appendChild(img);
+      }
+      m.appendChild(frame || img);
+      if (frame && shows("scratchpic")) picUp = scratchify(frame, "scratchPic");
       if (photos.length > 1) {
         var dots = party ? null : el("div", "gc-dots no-shot");
         if (dots) { photos.forEach(function () { dots.appendChild(el("i")); }); dots.firstChild.className = "on"; m.appendChild(dots); }
@@ -873,6 +1134,13 @@
       into = el("div", "gc-body");
       m.appendChild(into);
     }
+    // pop-up: the festival's things stand up off the page as the card opens
+    if (shows("popup") && !still()) {
+      book.classList.add("popup");
+      var pop = el("div", "gc-pop");
+      [st[6], st[3], st[6]].forEach(function (ch) { pop.appendChild(el("span", "", ch)); });
+      into.appendChild(pop);
+    }
     if (party && shows("blow")) into.appendChild(makeCake());
     else if (!img) into.appendChild(line("gc-mark", st[3])); // the photo heads the card instead
     var head = line("gc-title", title);
@@ -890,9 +1158,25 @@
       var seed = 0; (to + from).split("").forEach(function (ch) { seed = (seed * 31 + ch.charCodeAt(0)) % 9973; });
       into.appendChild(line("gc-quote", pool[seed % pool.length]));
     }
+    // all the photos on a ring, turning in 3D
+    if (photos.length > 1 && shows("ring") && !still()) {
+      var ring = el("div", "gc-ring no-shot"), spin = el("div");
+      var far = Math.max(70, Math.round(52 / Math.tan(Math.PI / photos.length)));
+      photos.forEach(function (src, i) {
+        var p = el("img");
+        p.alt = ""; p.referrerPolicy = "no-referrer";
+        p.style.transform = "rotateY(" + (i * 360 / photos.length) + "deg) translateZ(" + far + "px)";
+        p.onerror = function () { p.remove(); };
+        p.src = src;
+        spin.appendChild(p);
+      });
+      ring.appendChild(spin);
+      into.appendChild(ring);
+    }
     var sign = line("gc-sign");
     sign.appendChild(put(el("span"), "love"));
     sign.appendChild(el("b", "", from));
+    if (SIG) sign.appendChild(signature());
     if (others.length) {
       // a group card: the others sign under them
       var group = el("div", "gc-group");
@@ -900,6 +1184,8 @@
       sign.appendChild(group);
     }
     into.appendChild(sign);
+    var notes = stickies();
+    if (notes) into.appendChild(notes);
     var mine = moment(m);
     if (mine) into.appendChild(mine);
 
@@ -926,7 +1212,43 @@
     var cover = el("div", "gc-cover");
     cover.appendChild(line("big", st[3]));
     cover.appendChild(line("for", "For " + (to || "you")));
-    book.appendChild(m); book.appendChild(cover);
+    // flip: a back to the card (the photo, who it's for, who sends it), and it turns over to it
+    var face = m;
+    if (shows("flip") && !still()) {
+      face = el("div", "gc-flip");
+      var back = el("div", "gcard " + style + " gc-back");
+      if (photos.length) {
+        var pic = el("img", "gc-photo round");
+        pic.alt = ""; pic.referrerPolicy = "no-referrer";
+        pic.onerror = function () { pic.replaceWith(line("gc-mark", st[3])); };
+        pic.src = photos[0];
+        back.appendChild(pic);
+      } else back.appendChild(line("gc-mark", st[3]));
+      var forWho = line("gc-title", to || st[4]);
+      if (/[ऀ-ॿ]/.test(to)) forWho.className += " hi";
+      back.appendChild(forWho);
+      back.appendChild(line("gc-rule", "— ✦ —"));
+      back.appendChild(put(line("gc-msg"), "backNote"));
+      var sign2 = line("gc-sign");
+      sign2.appendChild(put(el("span"), "love"));
+      sign2.appendChild(el("b", "", from));
+      if (SIG) sign2.appendChild(signature());
+      if (others.length) sign2.appendChild(group.cloneNode(true));
+      back.appendChild(sign2);
+      var turn = function () { face.classList.toggle("over"); };
+      var backTools = el("div", "gc-tools");
+      var front = put(el("button", "gc-btn"), "flipBack");
+      front.onclick = turn;
+      backTools.appendChild(front);
+      back.appendChild(backTools);
+      var over = put(el("button", "gc-btn"), "flip");
+      over.onclick = turn;
+      tools.appendChild(over);
+      if (!tools.parentNode) into.appendChild(tools);
+      face.appendChild(m); face.appendChild(back);
+    }
+    book.appendChild(face); book.appendChild(cover);
+    tilt3d(book);
     $("msg").appendChild(book);
   } else {
     if (message) {
@@ -969,12 +1291,13 @@
       document.head.appendChild(js);
     });
     return ready.then(function () {
+      document.body.classList.add("flat"); // not leaning in the picture
       return window.html2canvas(card, { scale: 2, useCORS: true, backgroundColor: null,
         ignoreElements: function (e) {
           return e.classList && (e.classList.contains("gc-tools") || e.classList.contains("gc-fx") || e.classList.contains("no-shot"));
         }
       });
-    });
+    }).finally(function () { document.body.classList.remove("flat"); });
   };
   var fileName = function (ext) { return (st[0] || "greeting").replace(/\W+/g, "-") + "-card." + ext; };
   // a file shared where the phone can (WhatsApp …), else saved
@@ -1293,6 +1616,8 @@
 
   // falling snow / sparkles
   var fx = $("fx");
+  // in depth: three layers, far (small, soft) to near (big)
+  var layers = shows("depth") && !still() ? [0, 1, 2].map(function (d) { return fx.appendChild(el("div", "fx-layer d" + d)); }) : null;
   for (var i = 0; i < 26; i++) {
     var s = el("span", "", st[6]);
     s.style.left = (i * 37 % 100) + "%";
@@ -1305,7 +1630,12 @@
       s.style.fontSize = (18 + (i * 7) % 18) + "px";
       s.style.filter = "hue-rotate(" + (i * 47 % 360) + "deg)";
     }
-    fx.appendChild(s);
+    if (layers) {
+      var d = i % 3;
+      s.style.fontSize = parseFloat(s.style.fontSize) * [0.6, 1, 1.6][d] + "px";
+      s.style.animationDuration = parseFloat(s.style.animationDuration) * [1.5, 1, 0.75][d] + "s";
+      layers[d].appendChild(s);
+    } else fx.appendChild(s);
   }
 
   var song = $("song"), music = $("music");
@@ -1353,6 +1683,8 @@
   function confetti(n) {
     if (still()) return;
     var layer = document.createElement("div"); layer.className = "confetti"; layer.setAttribute("aria-hidden", "true");
+    var tumble = shows("confetti3d");
+    if (tumble) layer.className += " c3d";
     var colours = ["#f472b6", "#facc15", "#38bdf8", "#a3e635", "#c084fc", "#fb923c", "#f87171"];
     for (var k = 0; k < n; k++) {
       var c = document.createElement("i");
@@ -1363,6 +1695,11 @@
       c.style.setProperty("--sway", Math.round(Math.random() * 160 - 80) + "px");
       c.style.setProperty("--spin", Math.round(Math.random() * 1080 - 540) + "deg");
       if (k % 3 === 0) { c.style.width = "10px"; c.style.height = "10px"; c.style.borderRadius = "50%"; }
+      if (tumble) {
+        c.style.setProperty("--rx", Math.round(360 + Math.random() * 1080) + "deg");
+        c.style.setProperty("--ry", Math.round(360 + Math.random() * 1080) + "deg");
+        c.style.scale = (0.55 + Math.random() * 0.95).toFixed(2); // near or far
+      }
       layer.appendChild(c);
     }
     document.body.appendChild(layer);
@@ -1389,15 +1726,61 @@
       buzz(150);
       clearTimeout(sayLater); // the song, not Jarvis, now
       voice.pause();
-      if (tune) { song.currentTime = 0; song.play().catch(function () {}); }
+      // the birthday song, once they're out (its own switch: on even with the opening tune off)
+      if (shows("blowsong") && st[5]) {
+        if (!tune) song.src = "songs/" + st[5] + ".mp3?v=" + AUDIO;
+        music.classList.add("shown"); // so it can be stopped
+        song.currentTime = 0; song.play().catch(function () {});
+      }
     };
     blow.onclick = blowOut;
+    // or blow into the mic: a loud enough breath puts them out
+    var mic = null, Ctx = window.AudioContext || window.webkitAudioContext;
+    if (shows("micblow") && Ctx && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      mic = put(el("button", "gc-btn no-shot"), "micBlow");
+      mic.onclick = function () {
+        if (cake.classList.contains("out")) return;
+        mic.disabled = true;
+        navigator.mediaDevices.getUserMedia({ audio: true }).then(function (stream) {
+          put(hint, "micNow");
+          var ac = new Ctx(), an = ac.createAnalyser();
+          an.fftSize = 512;
+          ac.createMediaStreamSource(stream).connect(an);
+          var buf = new Uint8Array(an.fftSize), loud = 0, until = Date.now() + 20000;
+          var stop = function () { stream.getTracks().forEach(function (tr) { tr.stop(); }); ac.close(); };
+          (function listen() {
+            if (cake.classList.contains("out")) { stop(); return; }
+            if (Date.now() > until) { stop(); mic.disabled = false; put(hint, "wish"); return; }
+            an.getByteTimeDomainData(buf);
+            var sum = 0;
+            for (var i = 0; i < buf.length; i++) { var d = (buf[i] - 128) / 128; sum += d * d; }
+            loud = Math.sqrt(sum / buf.length) > 0.18 ? loud + 1 : 0;
+            if (loud > 5) { stop(); blowOut(); return; } // a breath, not a click
+            requestAnimationFrame(listen);
+          })();
+        }, function () { put(mic, "micNo"); });
+      };
+    }
     var row = el("div", "gc-tools no-shot");
     row.appendChild(blow);
+    if (mic) row.appendChild(mic);
     wrap.appendChild(cake); wrap.appendChild(hint); wrap.appendChild(row);
     return wrap;
   }
   if (party && !only && shows("blow")) $("voucher").insertBefore(makeCake(), $("voucher").firstChild);
+  // ask (never on its own) whether to tell them it's been opened: a WhatsApp message, if they say yes
+  var askSeen = function () {
+    var ask = el("div", "seen no-shot"), row = el("div", "gc-tools");
+    var yes = put(el("button", "gc-btn"), "seenYes"), no = put(el("button", "gc-btn"), "seenNo");
+    ask.appendChild(put(el("div"), "seenAsk", { from: from }));
+    yes.onclick = function () {
+      window.open("https://wa.me/" + phone + "?text=" + encodeURIComponent(t("seenBody", { from: from })), "_blank", "noopener");
+      ask.remove();
+    };
+    no.onclick = function () { ask.remove(); };
+    row.appendChild(yes); row.appendChild(no); ask.appendChild(row);
+    document.body.appendChild(ask);
+  };
   var sayLater = 0;
   var reveal = function () {
     $("wait").hidden = true;
@@ -1406,10 +1789,13 @@
     requestAnimationFrame(function () { requestAnimationFrame(function () {
       v.classList.add("in");
       if (scratchUp) scratchUp();
+      if (picUp) picUp();
     }); });
     setTimeout(function () { v.scrollIntoView({ behavior: "smooth", block: "center" }); }, 300);
     sayLater = setTimeout(say, 1400); // once the crackle's done
     if (only) openBook();
+    else tilt3d($("card"));
+    if (shows("seen")) setTimeout(askSeen, 5000);
     if (party) confetti(120);
   };
   // who brings it (Santa unless the festival has its own): the gift comes out of .sled
@@ -1475,6 +1861,7 @@
       var from = at(santa.querySelector(".sled"));
       var box = document.createElement("div"); box.className = "drop hid";
       if (only) box.innerHTML = ENV;
+      else if (CUBE) box.innerHTML = CUBE;
       else box.textContent = gem;
       box.style.left = from.x + "px"; box.style.top = from.y + "px";
       sky.insertBefore(box, santa);
@@ -1641,6 +2028,7 @@
   if (unlock && unlock > new Date()) {
     $("gift").hidden = true;
     $("lock").hidden = false;
+    if (shows("flipclock") && !still()) $("lock").classList.add("flip3d");
     put($("lockTitle"), only ? "lockCard" : "lockGift");
     put($("lockWhen"), "opensOn", { date: function () {
       return unlock.toLocaleDateString(lang === "hi" ? "hi-IN" : "en-IN", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
@@ -1662,7 +2050,10 @@
       }
       var sec = Math.floor(ms / 1000);
       [Math.floor(sec / 86400), Math.floor(sec / 3600) % 24, Math.floor(sec / 60) % 60, sec % 60].forEach(function (v, i) {
-        cells[i].textContent = i ? ("0" + v).slice(-2) : v;
+        var now = String(i ? ("0" + v).slice(-2) : v);
+        if (cells[i].textContent === now) return;
+        cells[i].textContent = now;
+        cells[i].classList.remove("turn"); void cells[i].offsetWidth; cells[i].classList.add("turn");
       });
     };
     var timer = setInterval(tick, 1000);
