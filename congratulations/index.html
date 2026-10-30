@@ -1,0 +1,2449 @@
+<!doctype html>
+<html lang="en">
+<head>
+<!-- made from ../index.html by make_festival_pages(): change that one -->
+<base href="../">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>A greeting for you 💌</title>
+<meta name="description" content="A personal festival greeting card, sent by a friend.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Kalam:wght@700&display=swap" rel="stylesheet">
+<!--
+  J.A.R.V.I.S festival gift page (published on GitHub Pages). The email's
+  "Open your gift" button links here with the card in the URL's #fragment
+  (base64url JSON: f festival, t to, n from, a amount, c claim code,
+  m message, g 1 for a greeting card with no gift in it, and the greeting
+  card's own: h title, l "hi" for a Hindi one, s style, p photo (big, down
+  the side on a birthday; the card takes its colour), pp more photos (one after another; on a gift card too, under its message), q 0 for no shayari,
+  on a new baby's card: bp who it's for (dad / mom / both), bg boy / girl, bn the baby's name,
+  and on either kind: r the sender's email for a reply, w their WhatsApp number, o others who sign it,
+  x the buttons on the card turned off (hear, save, video, whatsapp, back, and blow: a birthday's
+  cake; jarvis: Jarvis's voice, none then unless their own; song: the festival's tune, the
+  way Diwali goes then; tilt: the card in 3D; and more 3D: flip (a back to the card), popup (things
+  stand up as it opens), frame (the photo deep in a frame), box3d (a 3D gift box), env3d (a 3D envelope),
+  depth (the background near and far), confetti3d; and: scratchpic (the photo under a silver layer),
+  micblow (blow the candles out into the mic), game (catch what falls), ring (the photos on a turning
+  ring), flipclock (the countdown in 3D), react (an emoji back on WhatsApp), seen (asks whether to tell
+  them it's opened), blowsong (the birthday song once the candles are out, even with the tune off);
+  left out: all on),
+  sg their signature (an SVG path: M / L and numbers), om a few words from each of the others (o),
+  d the day it opens (YYYY-MM-DD: locked with a countdown till then), v their own voice (or, with vk "v",
+  video) message in place of Jarvis's; or, locked behind a question, only lk 1, f, q the question and
+  s / i / e / k (salt, iv, the card sealed, its tag: see lock_card() in festival_gifts.py), which
+  browsers never send to the server. The page shows the
+  card the way the email used to and plays the festival's tune: right away
+  where the browser allows sound, else at the tap that opens the gift box.
+  A greeting card skips that box: it opens straight away (a tap anywhere
+  then brings the sound, where the browser wants one first).
+  The gift itself (amount, claim code) and the sender's message stay hidden
+  until the tune is done. While it plays, Santa crosses the card once, in
+  step with it (diyas on Diwali, balloons on a birthday, colours on Holi,
+  the moon on Eid, rakhi knots on Raksha Bandhan), then comes back to its
+  middle; there, like a film, he takes the gift out and hands it over, and
+  it bursts open into the voucher and the message, as Jarvis's voice wishes
+  them. Diwali has no tune first: its diyas bring the gift straight away.
+  Under the card, the festival's own moment (light the diyas and a sparkler,
+  throw colour, tie the rakhi, deck the tree and let it snow, a New Year
+  countdown, spot Eid's moon; blow out a birthday's candles), a scratch-off claim code, the card as a picture or a short video,
+  thanks on WhatsApp / email, and a card back to them made right here. The
+  page's own words switch between English and Hindi (top right).
+  Tunes: songs/<festival>.mp3 (a public-domain tune), voices:
+  voices/<festival>.mp3 (Jarvis's voice), both made by the host-agent,
+  services/extras/festival_gifts.py, make_page_songs().
+-->
+<style>
+  :root { --c1: #4338ca; --c2: #0e7490; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; min-height: 100%; }
+  body {
+    min-height: 100vh; font-family: "Segoe UI", Helvetica, Arial, sans-serif; color: #0f172a;
+    background: radial-gradient(circle at 50% 20%, color-mix(in srgb, var(--c1) 55%, #0b1020), #070a14 70%);
+    display: flex; align-items: center; justify-content: center; padding: 16px; overflow-x: hidden;
+  }
+  .fx { position: fixed; inset: 0; pointer-events: none; overflow: hidden; }
+  .fx span { position: absolute; top: -20px; color: #fff; opacity: .85; animation: fall linear infinite; }
+  @keyframes fall { to { transform: translateY(110vh) rotate(360deg); } }
+  /* a birthday: balloons go up, not down */
+  .fx span.up, .gc-fx span.up { top: auto; bottom: -50px; animation-name: rise; }
+  @keyframes rise { 0% { transform: translateY(0) rotate(-6deg); } 50% { transform: translateY(-60vh) rotate(6deg); } 100% { transform: translateY(-120vh) rotate(-6deg); } }
+
+  /* a birthday party: confetti, and a cake whose candles they blow out */
+  .confetti { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 20; }
+  .confetti i { position: absolute; top: -20px; width: 8px; height: 14px; border-radius: 2px; animation: drop linear forwards; }
+  @keyframes drop { to { transform: translate(var(--sway), 110vh) rotate(var(--spin)); } }
+  .cake-wrap { margin: 4px 0 10px; text-align: center; }
+  .cake { position: relative; display: inline-block; width: 170px; height: 150px; }
+  .cake > * { position: absolute; left: 50%; transform: translateX(-50%); }
+  .cake .plate { bottom: 0; width: 170px; height: 12px; border-radius: 50%; background: #e2e8f0; box-shadow: 0 4px 10px rgba(15,23,42,.2); }
+  .cake .tier { border-radius: 10px 10px 6px 6px; background-color: var(--fest2); /* the festival's, never the photo's */
+                background-image: radial-gradient(circle, #fde047 0 2px, transparent 3px), radial-gradient(circle, #fff 0 2px, transparent 3px),
+                                  linear-gradient(180deg, #fff 0 9px, transparent 9px);
+                background-size: 22px 16px, 28px 18px, 100% 100%; background-position: 4px 14px, 15px 22px, 0 0; }
+  .cake .bottom { bottom: 8px; width: 150px; height: 48px; }
+  .cake .top { bottom: 54px; width: 108px; height: 38px; background-color: var(--fest1); }
+  .cake .candles { bottom: 90px; display: flex; gap: 18px; }
+  .cake .candle { position: relative; width: 8px; height: 30px; border-radius: 2px;
+                  background: repeating-linear-gradient(135deg, #fff 0 4px, #f472b6 4px 8px); }
+  .cake .flame { position: absolute; left: 50%; bottom: 100%; width: 10px; height: 16px; margin: 0 0 2px -5px; border-radius: 50% 50% 45% 45%;
+                 background: radial-gradient(circle at 50% 70%, #fff7c2, #fbbf24 45%, #f97316 80%); box-shadow: 0 0 12px 4px rgba(251,191,36,.6);
+                 transform-origin: 50% 100%; animation: flicker .5s ease-in-out infinite alternate; transition: opacity .3s, transform .3s; }
+  .cake .candle:nth-child(2) .flame { animation-delay: -.2s; }
+  @keyframes flicker { to { transform: scale(.9, 1.1) rotate(4deg); } }
+  .cake .smoke { position: absolute; left: 50%; bottom: 100%; margin-left: -8px; font-size: 16px; opacity: 0; }
+  .cake.out .flame { opacity: 0; transform: scale(.2); }
+  .cake.out .smoke { animation: smoke 1.6s ease-out forwards; }
+  @keyframes smoke { 20% { opacity: .8; } to { opacity: 0; transform: translateY(-40px) scale(1.6); } }
+  .cake-wrap .wish-now { margin-top: 2px; font: 600 13px "Segoe UI", sans-serif; color: var(--c1); }
+  .royal .cake-wrap .wish-now { color: #f5d06f; }
+
+  .wrap { position: relative; width: 100%; max-width: 560px; }
+
+  /* the wrapped gift, before it's opened */
+  .gift { text-align: center; color: #fff; cursor: pointer; user-select: none; transition: opacity .5s, transform .5s; }
+  .gift .box { font-size: 120px; line-height: 1; display: inline-block; animation: wobble 1.6s ease-in-out infinite; filter: drop-shadow(0 10px 30px rgba(0,0,0,.4)); }
+  .gift h1 { margin: 18px 0 6px; font-size: 28px; }
+  .gift p { margin: 0; opacity: .85; font-size: 16px; }
+  .gift .tap { margin-top: 22px; display: inline-block; padding: 12px 28px; border-radius: 999px; background: #fff; color: var(--c1); font-weight: 700; font-size: 16px; box-shadow: 0 8px 24px rgba(0,0,0,.3); }
+  @keyframes wobble { 0%, 100% { transform: rotate(0) scale(1); } 20% { transform: rotate(-7deg) scale(1.04); } 40% { transform: rotate(6deg); } 60% { transform: rotate(-3deg) scale(1.02); } }
+  .gift.opening .box { animation: burst .6s ease-in forwards; }
+  @keyframes burst { to { transform: scale(1.6) rotate(12deg); opacity: 0; } }
+  .gift.gone { opacity: 0; transform: scale(.9); pointer-events: none; position: absolute; inset: 0; }
+
+  /* the card, as the email showed it */
+  .card { background: #fff; border-radius: 18px; overflow: hidden; box-shadow: 0 18px 50px rgba(0,0,0,.35);
+          opacity: 0; transform: translateY(30px) scale(.96); transition: opacity .6s, transform .6s; display: none; }
+  .card.shown { display: block; }
+  .card.in { opacity: 1; transform: none; }
+  .banner { background: linear-gradient(135deg, var(--c1), var(--c2)); color: #fff; text-align: center; padding: 34px 24px; }
+  .banner .mark { font-size: 54px; line-height: 1; }
+  .banner .greet { margin-top: 10px; font-size: 28px; font-weight: 700; }
+  .banner .from { margin-top: 6px; font-size: 15px; opacity: .92; }
+  .body { padding: 28px 26px 10px; text-align: center; }
+  .label { margin-top: 18px; font-size: 13px; letter-spacing: 2px; color: #64748b; text-transform: uppercase; }
+  .amount { margin-top: 4px; font-size: 46px; font-weight: 800; color: var(--c1); }
+  .code { margin-top: 6px; display: inline-flex; align-items: center; gap: 10px; padding: 12px 18px; border: 2px dashed var(--c1);
+          border-radius: 10px; font: bold 22px/1.2 "Courier New", monospace; letter-spacing: 3px; background: #fff7ed; }
+  .code button { font: 600 12px "Segoe UI", sans-serif; letter-spacing: 0; padding: 6px 10px; border-radius: 8px; border: 0; background: var(--c1); color: #fff; cursor: pointer; }
+  .later { margin-top: 18px; font-size: 13px; color: #64748b; }
+  .msg { margin: 22px auto 0; max-width: 420px; padding: 14px 18px; border-left: 4px solid var(--c2); background: #f8fafc; border-radius: 6px;
+         text-align: left; font-size: 15px; line-height: 1.55; color: #334155; white-space: pre-line; position: relative; }
+  /* a greeting card (no gift): an envelope, drawn in em so it grows with its font-size */
+  .env { position: relative; display: inline-block; width: 1.5em; height: 1em; perspective: 3em; vertical-align: middle; }
+  .env > span { position: absolute; }
+  .env .back { inset: 0; border-radius: .07em; background: color-mix(in srgb, var(--c1) 70%, #000); }
+  .env .letter { z-index: 1; left: .1em; right: .1em; top: .08em; height: .8em; border-radius: .04em; background-color: #fffdf7;
+                 background-image: repeating-linear-gradient(transparent 0 .1em, rgba(15,23,42,.12) .1em .11em);
+                 background-size: 70% 100%; background-position: 50% .3em; background-repeat: no-repeat;
+                 transition: transform .8s .25s cubic-bezier(.2, .8, .3, 1); }
+  .env .front { z-index: 1; inset: 0; border-radius: .07em; background: linear-gradient(160deg, color-mix(in srgb, var(--c1) 80%, #fff), var(--c1));
+                clip-path: polygon(0 0, 50% 54%, 100% 0, 100% 100%, 0 100%); }
+  .env .flap { z-index: 2; left: 0; right: 0; top: 0; height: .58em; transform-origin: 50% 0;
+               background: linear-gradient(180deg, color-mix(in srgb, var(--c2) 65%, #fff), var(--c2));
+               clip-path: polygon(0 0, 100% 0, 50% 100%); transition: transform .5s ease-in-out; }
+  .env .seal { z-index: 3; left: 50%; top: 56%; font-size: .17em; width: 1.9em; height: 1.9em; margin: -.95em 0 0 -.95em;
+               border-radius: 50%; line-height: 1.9em; text-align: center; background: radial-gradient(circle at 35% 35%, #fde68a, #d97706);
+               box-shadow: 0 .1em .25em rgba(0,0,0,.35); transition: opacity .2s; }
+  .env.open .seal { opacity: 0; }
+  .env.open .flap { transform: rotateX(180deg); z-index: 0; }
+  .env.open .letter { transform: translateY(-.55em); }
+  .card.greeting .body { min-height: 250px; }
+  /* a birthday card: no card around it, just the greeting card itself, wider,
+     with the photo down its side */
+  .wrap.wide { max-width: 760px; }
+  .card.bare { background: transparent; box-shadow: none; }
+  .card.bare .banner { display: none; }
+  .card.bare .body { padding: 0; }
+  .gbook.side { max-width: 760px; }
+  .gcard.side { display: flex; gap: 24px; align-items: stretch; padding: 28px; }
+  .gcard.side .gc-photo { flex: 0 0 38%; width: 38%; height: auto; min-height: 340px; max-height: none; margin: 0; border-radius: 12px;
+                          border: 3px solid #fff; box-shadow: 0 0 0 2px var(--c1-60), 0 10px 24px rgba(15,23,42,.25); }
+  .gcard.side .gc-body { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; }
+  @media (max-width: 620px) {
+    .gcard.side { flex-direction: column; padding: 24px 18px; }
+    .gcard.side .gc-photo { width: 100%; flex-basis: auto; min-height: 0; height: 260px; }
+  }
+  .card.greeting .wait { margin-top: 80px; } /* room for the envelope to land and open */
+  .drop.away { opacity: 0; transform: translate(-50%, -30%) scale(.85); transition: opacity .5s, transform .5s; }
+
+  /* the greeting card, a book that opens: classic (cream), festive (the
+     festival's pattern) or royal (dark, a golden frame). Its colours are
+     mixed in the script (--paper, --c1-35 …): "Save" (html2canvas) can't
+     read color-mix() */
+  .gbook { position: relative; max-width: 440px; margin: 4px auto 0; perspective: 1600px; }
+  .gc-cover { position: absolute; inset: 0; z-index: 4; display: flex; flex-direction: column; align-items: center; justify-content: center;
+              border-radius: 14px; color: #fff; background: linear-gradient(135deg, var(--c1), var(--c2));
+              box-shadow: inset 0 0 0 7px rgba(255,255,255,.15), inset 0 0 0 8px rgba(253,224,71,.7), 0 12px 30px rgba(15,23,42,.25);
+              transform-origin: 0 50%; backface-visibility: hidden; transition: transform 1.1s cubic-bezier(.5, .1, .3, 1), opacity .3s 1s; }
+  .gc-cover .big { font-size: 72px; line-height: 1; filter: drop-shadow(0 0 16px rgba(253,224,71,.7)); }
+  .gc-cover .for { margin-top: 12px; font: 400 34px/1.1 "Great Vibes", "Segoe Script", cursive; }
+  .gbook.open .gc-cover { transform: rotateY(-178deg); opacity: 0; pointer-events: none; }
+  .gcard { position: relative; overflow: hidden; padding: 34px 26px 22px; text-align: center; border-radius: 14px;
+           background: radial-gradient(circle at 50% 0, var(--paper), #fffdf7 65%);
+           border: 2px solid var(--c1-35);
+           box-shadow: inset 0 0 0 7px #fffdf7, inset 0 0 0 8px var(--c1-50), 0 12px 30px rgba(15,23,42,.15); }
+  .gcard::before, .gcard::after { content: "✦"; position: absolute; top: 16px; color: var(--c2); font-size: 14px; }
+  .gcard::before { left: 20px; }
+  .gcard::after { right: 20px; }
+  .gcard.royal { border-color: #d4a017; background: radial-gradient(circle at 50% 0, var(--night), #120c05 72%);
+                 box-shadow: inset 0 0 0 7px #120c05, inset 0 0 0 8px #f5d06f, inset 0 0 0 11px #120c05, inset 0 0 0 12px rgba(245,208,111,.5),
+                             0 12px 30px rgba(0,0,0,.35); }
+  .gcard.royal::before, .gcard.royal::after { color: #f5d06f; }
+  .gc-fx { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+  .gc-fx span { position: absolute; top: -16px; font-size: 12px; opacity: .55; animation: gcfall linear infinite; }
+  @keyframes gcfall { to { transform: translateY(110vh) rotate(200deg); } }
+  .gcard > :not(.gc-fx):not(.gc-bg):not(.gc-layer) { position: relative; }
+  /* the photo, faint and blurred, behind the whole card */
+  .gc-bg { position: absolute; inset: -40px; background-size: cover; background-position: center; filter: blur(26px) saturate(1.3);
+           opacity: .5; pointer-events: none; }
+  .royal .gc-bg { opacity: .35; }
+  .gc-photo { display: block; margin: 0 auto 10px; object-fit: cover; background: #fff; }
+  .gc-photo.wide { width: 100%; max-height: 240px; border-radius: 10px; margin-top: 4px; box-shadow: 0 6px 16px rgba(15,23,42,.2); }
+  .gc-photo.round { width: 104px; height: 104px; border-radius: 50%; border: 3px solid #fff;
+                    box-shadow: 0 0 0 3px var(--c1-60), 0 6px 16px rgba(15,23,42,.2); }
+  .royal .gc-photo.round { box-shadow: 0 0 0 3px #f5d06f, 0 6px 16px rgba(0,0,0,.4); }
+  .gc-mark { font-size: 46px; line-height: 1; animation: glow 2.4s ease-in-out infinite; }
+  @keyframes glow { 50% { transform: scale(1.07); filter: drop-shadow(0 0 10px rgba(253,224,71,.85)); } }
+  .gc-title { margin-top: 12px; font: 400 40px/1.15 "Great Vibes", "Segoe Script", "Brush Script MT", cursive; color: var(--c1); }
+  .gc-title.hi { font: 700 34px/1.3 "Kalam", "Tiro Devanagari Hindi", serif; }
+  .royal .gc-title { color: #f5d06f; text-shadow: 0 0 14px rgba(245,208,111,.45); }
+  .gc-rule { margin: 12px 0; color: var(--c2); letter-spacing: 6px; font-size: 12px; }
+  .royal .gc-rule { color: #f5d06f; }
+  .gc-msg { font: italic 17px/1.6 Georgia, "Times New Roman", serif; color: #334155; white-space: pre-line; }
+  .gc-msg .rest { visibility: hidden; } /* typed out, without the card changing size */
+  .royal .gc-msg { color: #fde9c4; }
+  .gc-quote { margin: 16px auto 0; max-width: 340px; font: italic 15px/1.6 Georgia, serif; color: var(--c1); white-space: pre-line; opacity: .9; }
+  .gc-quote::before { content: "“ "; }
+  .gc-quote::after { content: " ”"; }
+  .royal .gc-quote { color: #f5d06f; }
+  .gc-sign { margin-top: 22px; font-size: 13px; color: #64748b; }
+  .gc-sign b { display: block; margin-top: 2px; font: 400 32px/1.1 "Great Vibes", "Segoe Script", "Brush Script MT", cursive; color: #0f172a; }
+  .royal .gc-sign { color: #e7c98a; }
+  .royal .gc-sign b { color: #fff3d6; }
+  .gc-tools { margin-top: 18px; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+  .gc-btn { padding: 7px 14px; border-radius: 999px; border: 1px solid var(--c1-40); background: #fff;
+            color: var(--c1); font: 600 13px "Segoe UI", sans-serif; cursor: pointer; text-decoration: none; }
+  .royal .gc-btn { background: transparent; border-color: #d4a017; color: #f5d06f; }
+  @media (prefers-reduced-motion: reduce) { .confetti { display: none; } .cake .flame { animation: none; } .gc-cover { transition: none; } .gc-fx { display: none; } .gc-mark { animation: none; } }
+  .msg.saying { box-shadow: 0 0 0 3px color-mix(in srgb, var(--c2) 25%, transparent); }
+  .say { float: right; margin: -4px -6px 0 8px; width: 30px; height: 30px; border: 0; border-radius: 50%; background: #fff;
+              font-size: 15px; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,.15); }
+  .how { margin-top: 14px; font-size: 12px; color: #94a3b8; line-height: 1.5; }
+  .about { margin: 18px auto 0; max-width: 420px; text-align: center; font-size: 11px; line-height: 1.5; color: rgba(255,255,255,.7); }
+  .sign { padding: 20px 26px 26px; text-align: center; font-size: 14px; color: #475569; }
+  .sign b { color: #0f172a; }
+
+  /* the song's switch */
+  .music { position: fixed; right: 16px; bottom: 16px; width: 48px; height: 48px; border-radius: 50%; border: 0; cursor: pointer;
+           background: #fff; font-size: 22px; box-shadow: 0 6px 18px rgba(0,0,0,.35); display: none; }
+  .music.shown { display: block; }
+  .music.on { animation: pulse 1.2s ease-in-out infinite; }
+  @keyframes pulse { 50% { box-shadow: 0 0 0 10px color-mix(in srgb, var(--c2) 30%, transparent); } }
+  /* while the song plays, the gift waits */
+  .wait { margin: 22px auto 4px; font-size: 14px; color: #64748b; }
+  .wait .notes { display: inline-block; animation: bob 1.4s ease-in-out infinite; }
+  .voucher { opacity: 0; transform: scale(.85); transition: opacity .6s, transform .6s cubic-bezier(.2, 1.4, .4, 1); }
+  .voucher.in { opacity: 1; transform: none; }
+  /* 3D: the card leans toward the pointer (or the phone's tilt), its photo,
+     cake and title a step nearer, a glare across it; flat for "Save" */
+  .tilt3d, .card.in.tilt3d { position: relative; transform: perspective(1200px) rotateX(calc(var(--py, 0) * -7deg)) rotateY(calc(var(--px, 0) * 9deg));
+                             transition: transform .25s ease-out; }
+  .tilt3d .gc-photo, .tilt3d .cake, .tilt3d .gc-mark, .tilt3d .mark { translate: calc(var(--px, 0) * 10px) calc(var(--py, 0) * 8px); transition: translate .25s ease-out; }
+  .tilt3d .gc-title, .tilt3d .gc-quote { translate: calc(var(--px, 0) * 5px) calc(var(--py, 0) * 4px); transition: translate .25s ease-out; }
+  .tilt3d > .glare { position: absolute; inset: 0; z-index: 5; border-radius: 14px; pointer-events: none;
+                     background: radial-gradient(circle at calc(50% + var(--px, 0) * 45%) calc(50% + var(--py, 0) * 45%), rgba(255,255,255,.22), transparent 55%); }
+  .flat .tilt3d { transform: none !important; transition: none; }
+  .flat .tilt3d * { translate: none !important; transition: none !important; }
+  .flat .tilt3d > .glare { display: none; }
+  /* flip: the card turns over to its back */
+  .gc-flip { position: relative; transform-style: preserve-3d; transition: transform .9s cubic-bezier(.4, .1, .2, 1); }
+  .gc-flip.over { transform: rotateY(180deg); }
+  .gc-flip > .gcard { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+  .gc-back { position: absolute; inset: 0; transform: rotateY(180deg); display: flex; flex-direction: column; align-items: center;
+             justify-content: center; overflow: auto; }
+  .flat .gc-flip { transform: none !important; transition: none; }
+  .flat .gc-back { display: none; }
+  /* pop-up: the festival's things stand up off the page as the card opens */
+  .gc-pop { display: flex; justify-content: center; align-items: flex-end; gap: 16px; margin-bottom: 6px; }
+  .gc-pop span { display: inline-block; font-size: 30px; line-height: 1; transform-origin: 50% 100%; opacity: 0; }
+  .gc-pop span:nth-child(2) { font-size: 42px; }
+  .gbook.open .gc-pop span { animation: popup .8s cubic-bezier(.2, 1.5, .4, 1) 1.2s forwards; }
+  .gbook.open .gc-pop span:nth-child(2) { animation-delay: 1.35s; }
+  .gbook.open .gc-pop span:nth-child(3) { animation-delay: 1.5s; }
+  .gbook.popup.open .cake-wrap, .gbook.popup.open .gc-photo { transform-origin: 50% 100%; animation: popup .9s cubic-bezier(.2, 1.4, .4, 1) 1.1s both; }
+  .gbook.popup.open .gc-mark { transform-origin: 50% 100%; animation: popup .9s cubic-bezier(.2, 1.4, .4, 1) 1.1s both, glow 2.4s ease-in-out 2s infinite; }
+  @keyframes popup { from { transform: perspective(500px) rotateX(-88deg); opacity: 0; } 40% { opacity: 1; } to { transform: perspective(500px) rotateX(0); opacity: 1; } }
+  .flat .gc-pop span, .flat .popup .cake-wrap, .flat .popup .gc-photo, .flat .popup .gc-mark { animation: none !important; opacity: 1 !important; }
+  /* the photo deep in its frame: it shifts behind it as the page leans */
+  .gc-frame { position: relative; overflow: hidden; }
+  .gc-frame.wide { height: 240px; }
+  .gc-frame::after { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+                     box-shadow: inset 0 8px 20px rgba(0,0,0,.45), inset 0 0 0 1px rgba(255,255,255,.4); }
+  .gc-in { position: absolute; left: -8%; top: -8%; width: 116%; height: 116%; object-fit: cover; transition: opacity .5s, translate .3s ease-out;
+           translate: calc(var(--px, 0) * -12px) calc(var(--py, 0) * -9px); }
+  .gc-in.fading { opacity: 0; }
+  .flat .gc-in { translate: none !important; }
+  /* a gift box in 3D: it turns, its lid flies off as it opens */
+  .cube { display: inline-block; width: 1em; height: 1em; perspective: 4em; vertical-align: middle; }
+  .cube > b { position: relative; display: block; width: 100%; height: 100%; transform-style: preserve-3d; animation: turn3d 7s linear infinite; }
+  .cube i { position: absolute; inset: 0; border-radius: .04em; box-shadow: inset 0 0 .18em rgba(0,0,0,.35);
+            background: linear-gradient(90deg, transparent 43%, #fde047 43% 57%, transparent 57%), linear-gradient(135deg, var(--c1), var(--c2)); }
+  .cube .f1 { transform: translateZ(.5em); }
+  .cube .f2 { transform: rotateY(180deg) translateZ(.5em); }
+  .cube .f3 { transform: rotateY(90deg) translateZ(.5em); }
+  .cube .f4 { transform: rotateY(-90deg) translateZ(.5em); }
+  .cube .f5 { transform: rotateX(-90deg) translateZ(.5em); }
+  .cube .lid { transform: rotateX(90deg) translateZ(.5em); transition: transform .5s cubic-bezier(.3, 1.4, .5, 1);
+               background: linear-gradient(90deg, transparent 43%, #fde047 43% 57%, transparent 57%),
+                           linear-gradient(0deg, transparent 43%, #fde047 43% 57%, transparent 57%), linear-gradient(135deg, var(--c1), var(--c2)); }
+  @keyframes turn3d { from { transform: rotateX(-24deg) rotateY(0); } to { transform: rotateX(-24deg) rotateY(360deg); } }
+  .gift.opening .cube .lid, .drop.burst .cube .lid { transform: rotateX(90deg) translateZ(1.6em) rotateZ(40deg); }
+  /* the envelope in 3D: it swings in, sways, and the card rises out of it */
+  .env.env3d { animation: envin 1s cubic-bezier(.2, 1.2, .4, 1) both, envsway 3s 1s ease-in-out infinite; }
+  @keyframes envin { from { transform: perspective(4em) rotateY(-75deg) rotateX(30deg) scale(.5); } to { transform: perspective(4em); } }
+  @keyframes envsway { 0%, 100% { transform: perspective(4em); } 50% { transform: perspective(4em) rotateY(16deg) rotateX(8deg); } }
+  .env.env3d.open { animation: none; }
+  .env.env3d.open .letter { transform: translateY(-.8em) scale(1.12); box-shadow: 0 .06em .2em rgba(0,0,0,.3); }
+  /* the background in depth: far things small, dim and soft, near ones big; they shift apart as the page leans */
+  .fx-layer { position: absolute; inset: -40px; transition: translate .4s ease-out; }
+  .fx-layer.d0 { filter: blur(1.5px); opacity: .5; translate: calc(var(--px, 0) * -6px) calc(var(--py, 0) * -4px); }
+  .fx-layer.d1 { opacity: .85; translate: calc(var(--px, 0) * -16px) calc(var(--py, 0) * -10px); }
+  .fx-layer.d2 { translate: calc(var(--px, 0) * -34px) calc(var(--py, 0) * -22px); }
+  /* confetti in 3D: each piece tumbles, some near, some far */
+  .confetti.c3d { perspective: 800px; }
+  .confetti.c3d i { animation-name: drop3d; }
+  @keyframes drop3d { to { transform: translate(var(--sway), 110vh) rotateX(var(--rx)) rotateY(var(--ry)) rotate(var(--spin)); } }
+  /* the photo under a silver layer, scratched off (a frame with no shift when "frame" is off) */
+  .gc-frame.plain::after { display: none; }
+  .gc-frame.plain .gc-in { translate: none; left: 0; top: 0; width: 100%; height: 100%; }
+  .gc-frame canvas { position: absolute; inset: 0; z-index: 2; width: 100%; height: 100%; cursor: pointer; touch-action: none; transition: opacity .6s; }
+  .gc-frame canvas.off { opacity: 0; pointer-events: none; }
+  /* all the photos on a ring, turning in 3D */
+  .gc-ring { position: relative; height: 140px; margin: 18px auto 4px; perspective: 900px; }
+  .gc-ring > div { position: absolute; left: 50%; top: 12px; width: 90px; height: 110px; margin-left: -45px; transform-style: preserve-3d;
+                   animation: ring 16s linear infinite; }
+  .gc-ring img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 10px; border: 3px solid #fff;
+                 box-shadow: 0 6px 16px rgba(15,23,42,.3); }
+  @keyframes ring { from { transform: rotateY(0); } to { transform: rotateY(-360deg); } }
+  /* the countdown in 3D: the padlock swings, each number flips in */
+  .lock.flip3d .padlock { animation: lockspin 4s ease-in-out infinite; }
+  @keyframes lockspin { 0%, 100% { transform: perspective(400px) rotateY(-25deg); } 50% { transform: perspective(400px) rotateY(25deg); } }
+  .lock.flip3d .left span { perspective: 300px; background: linear-gradient(180deg, rgba(255,255,255,.22) 50%, rgba(255,255,255,.1) 50%);
+                            box-shadow: 0 6px 0 rgba(0,0,0,.3), 0 12px 24px rgba(0,0,0,.3); }
+  .lock.flip3d .left b { display: block; }
+  .lock.flip3d .left b.turn { animation: flipnum .5s ease-out; }
+  @keyframes flipnum { from { transform: rotateX(90deg); opacity: .3; } to { transform: none; opacity: 1; } }
+  /* their signature; the others' few words, as sticky notes */
+  .sig { display: block; width: 150px; height: 60px; margin: 2px auto 0; color: #0f172a; }
+  .sig path { fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+  .royal .sig { color: #fff3d6; }
+  .gc-notes { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin: 16px auto 0; }
+  .note { width: 150px; padding: 10px 10px 8px; background: #fef08a; color: #422006; text-align: left; transform: rotate(var(--r, 0deg));
+          box-shadow: 0 6px 12px rgba(0,0,0,.18); font: 15px/1.4 "Kalam", "Segoe Print", cursive; }
+  .note:nth-child(3n+2) { background: #fbcfe8; }
+  .note:nth-child(3n) { background: #bae6fd; }
+  .note p { margin: 0; white-space: pre-line; }
+  .note b { display: block; margin-top: 6px; font-size: 12px; text-align: right; }
+  /* an emoji back on WhatsApp */
+  .reacts { flex-basis: 100%; display: flex; justify-content: center; gap: 6px; }
+  .react { font-size: 24px; line-height: 1; padding: 4px; border: 0; background: none; cursor: pointer; transition: transform .2s; }
+  .react:hover { transform: scale(1.25) translateY(-3px); }
+  .react.hit { animation: hit .5s; }
+  @keyframes hit { 50% { transform: scale(1.6) rotate(-10deg); } }
+  /* the little game: catch what falls */
+  .game { position: fixed; inset: 0; z-index: 40; background: rgba(7,10,20,.8); overflow: hidden; touch-action: manipulation; }
+  .game-head { position: absolute; left: 0; right: 0; top: 12px; z-index: 2; display: flex; justify-content: center; align-items: center; gap: 14px;
+               color: #fff; font: 700 16px "Segoe UI", sans-serif; }
+  .game-thing { position: absolute; top: -60px; font-size: 42px; line-height: 1; padding: 0; border: 0; background: none; cursor: pointer;
+                animation: gamefall linear forwards; transition: scale .3s, opacity .3s; }
+  .game-thing.got { scale: 1.8; opacity: 0; animation-play-state: paused; }
+  @keyframes gamefall { to { transform: translateY(calc(100vh + 80px)) rotate(200deg); } }
+  .game-end { position: absolute; left: 50%; top: 50%; z-index: 3; transform: translate(-50%, -50%); text-align: center; color: #fff;
+              font: 800 26px "Segoe UI", sans-serif; }
+  .game-end .gc-btn { margin-top: 14px; }
+  /* asks (never on its own) whether to tell them it's been opened */
+  .seen { position: fixed; left: 50%; top: 16px; z-index: 32; transform: translateX(-50%); width: max-content; max-width: calc(100% - 32px);
+          padding: 12px 16px; border-radius: 14px; background: #fff; color: #0f172a; text-align: center; font: 600 14px "Segoe UI", sans-serif;
+          box-shadow: 0 10px 30px rgba(0,0,0,.35); animation: seenin .4s ease-out; }
+  .seen .gc-tools { margin-top: 8px; }
+  @keyframes seenin { from { transform: translate(-50%, -20px); opacity: 0; } }
+  @keyframes bob { 50% { transform: translateY(-4px); } }
+
+  /* the delivery, inside the card: Santa's sleigh (or the festival's own: diyas, balloons,
+     colours, moon, rakhis) crosses it once, in step with the song, and once it's over
+     comes back to its middle; then, like a film: the lights dim, the camera closes in, Santa
+     takes the gift out and hands it to you, and flies off */
+  .card { position: relative; }
+  .sky { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 5; transition: opacity .5s; }
+  .sky.out { opacity: 0; }
+  .sleigh { position: absolute; top: 50%; left: 0; white-space: nowrap; font-size: 34px; line-height: 1;
+            filter: drop-shadow(0 4px 10px rgba(0,0,0,.4)); transform: translate(100vw, -50%); }
+  .sleigh.glide { transition: transform 1.2s ease-in-out; }
+  .sleigh .ho { transition: opacity .3s; }
+  .sleigh.quiet .ho { opacity: 0; }
+  .dim { position: absolute; inset: 0; background: radial-gradient(circle at 50% 50%, transparent 18%, rgba(0,0,0,.6) 75%);
+         opacity: 0; transition: opacity 1s; }
+  .dim.on { opacity: 1; }
+  .rays { position: absolute; width: 240px; height: 240px; margin: -120px 0 0 -120px; border-radius: 50%; opacity: 0; transition: opacity .6s;
+          background: repeating-conic-gradient(rgba(253,224,71,.45) 0 9deg, transparent 9deg 22deg);
+          -webkit-mask: radial-gradient(circle, #000 25%, transparent 70%); mask: radial-gradient(circle, #000 25%, transparent 70%);
+          animation: spin 8s linear infinite; }
+  .rays.on { opacity: 1; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .sleigh .ride { display: inline-block; animation: bob .6s ease-in-out infinite; }
+  .sleigh .lead { display: inline-block; margin-right: -4px; }
+  .sleigh .lead:nth-child(2) { animation-delay: -.3s; }
+  .sleigh .sled { position: relative; display: inline-block; margin-left: 4px; }
+  .sleigh .sled b { position: absolute; left: 4px; bottom: 16px; font-size: 28px; font-weight: normal; }
+  .sleigh .ho { position: absolute; bottom: 100%; left: 50%; transform: translate(-50%, -8px); white-space: nowrap; padding: 3px 9px;
+                border-radius: 10px; background: #fff; color: var(--c1); font: 700 12px "Segoe UI", sans-serif; box-shadow: 0 2px 8px rgba(0,0,0,.25); }
+  .drop { position: absolute; font-size: 30px; line-height: 1; transform: translate(-50%, -50%); filter: drop-shadow(0 0 14px rgba(253,224,71,.8));
+          transition: left 1.2s ease-in-out, top 1.2s ease-in-out, font-size 1.2s ease-in-out, opacity .5s; }
+  .drop.hid { opacity: 0; font-size: 8px; }
+  .drop.jolt { animation: jolt .35s ease-out; }
+  .drop.burst { animation: open .55s ease-in forwards; }
+  @keyframes jolt { 30% { transform: translate(-50%, -50%) scale(1.15) rotate(-8deg); } 65% { transform: translate(-50%, -50%) scale(.96) rotate(5deg); } }
+  @keyframes open { to { transform: translate(-50%, -50%) scale(1.8) rotate(12deg); opacity: 0; } }
+  .spark { position: absolute; font-size: 18px; transform: translate(-50%, -50%); animation: spark .9s ease-out forwards; }
+  @keyframes spark { to { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(.4); opacity: 0; } }
+
+  /* a greeting card that opened by itself, before any tap: sound needs one */
+  .sound { position: fixed; left: 50%; bottom: 20px; z-index: 30; transform: translateX(-50%); padding: 10px 18px; border: 0; border-radius: 999px;
+           background: #fff; color: var(--c1); font: 700 14px "Segoe UI", sans-serif; box-shadow: 0 8px 24px rgba(0,0,0,.35); cursor: pointer;
+           animation: pulse 1.2s ease-in-out infinite; }
+  .bad { color: #fff; text-align: center; font-size: 18px; }
+
+  /* the language switch (English / हिंदी), top right */
+  .lang { position: fixed; right: 16px; top: 16px; z-index: 30; padding: 6px 12px; border: 0; border-radius: 999px; background: rgba(255,255,255,.92);
+          color: var(--c1); font: 700 13px "Segoe UI", sans-serif; cursor: pointer; box-shadow: 0 4px 14px rgba(0,0,0,.3); }
+
+  /* opens on its day only: a lock and a countdown till then */
+  .lock { text-align: center; color: #fff; }
+  .lock .padlock { font-size: 96px; line-height: 1; animation: wobble 3s ease-in-out infinite; }
+  .lock h1 { margin: 16px 0 6px; font-size: 26px; }
+  .lock p { margin: 0; opacity: .85; }
+  .lock .left { margin-top: 18px; display: inline-flex; gap: 10px; }
+  /* a card locked behind their question: the answer opens it */
+  .secret input { display: block; width: min(320px, 100%); margin: 18px auto 10px; padding: 12px 14px; border: 0; border-radius: 12px;
+    font: 16px "Segoe UI", sans-serif; text-align: center; }
+  .secret button { padding: 10px 22px; border: 0; border-radius: 999px; background: #fff; color: #0f172a; font: 700 15px "Segoe UI", sans-serif; cursor: pointer; }
+  .secret button:disabled { opacity: .6; cursor: wait; }
+  .secret .wrong { margin-top: 12px; min-height: 1.3em; color: #fecaca; }
+  .secret.shake { animation: shake .4s; }
+  @keyframes shake { 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
+  /* a gift card's photos, under its message, one after another */
+  .gift-pics { margin: 12px auto 4px; max-width: 320px; }
+  .gift-pics img { display: block; width: 100%; max-height: 260px; object-fit: cover; border-radius: 12px; }
+  .lock .left span { min-width: 64px; padding: 10px 6px; border-radius: 12px; background: rgba(255,255,255,.14); font: 800 26px/1.1 "Segoe UI", sans-serif; }
+  .lock .left small { display: block; margin-top: 2px; font: 600 10px "Segoe UI", sans-serif; letter-spacing: 1px; opacity: .8; text-transform: uppercase; }
+
+  /* the festival's own moment, under the card: light the diyas, throw colour … */
+  .moment { margin: 18px auto 4px; max-width: 420px; text-align: center; }
+  .moment .hint { margin-top: 6px; font: 600 13px "Segoe UI", sans-serif; color: var(--c1); }
+  .royal .moment .hint { color: #f5d06f; }
+  .moment .row { display: flex; justify-content: center; gap: 10px; margin-top: 8px; flex-wrap: wrap; }
+  /* a new baby's card: a mobile over it, a ribbon, little footsteps, a promotion letter for the new papa */
+  .bmobile { position: relative; width: 230px; height: 150px; margin: 0 auto 4px; }
+  .bmobile .bar { position: absolute; left: 20px; right: 20px; top: 8px; height: 4px; border-radius: 4px; background: linear-gradient(90deg, #fcd34d, #fde68a, #fcd34d); box-shadow: 0 2px 6px rgba(0,0,0,.12); }
+  .bmobile .bar::before { content: ""; position: absolute; left: 50%; top: -10px; width: 2px; height: 10px; background: #fcd34d; }
+  .bmobile .hang { position: absolute; top: 12px; width: 2px; transform-origin: top center; background: rgba(148,163,184,.7); animation: b-sway 3.2s ease-in-out infinite; }
+  .bmobile .hang span { position: absolute; left: 50%; bottom: -26px; transform: translateX(-50%); font-size: 24px; line-height: 1; filter: drop-shadow(0 2px 3px rgba(0,0,0,.15)); }
+  .bmobile .face { position: absolute; left: 50%; bottom: 0; width: 76px; height: 76px; margin-left: -38px; border-radius: 50%; display: grid; place-items: center; font-size: 48px;
+    background: radial-gradient(circle, #fff 55%, color-mix(in srgb, var(--c2) 30%, #fff)); box-shadow: 0 0 0 4px #fff, 0 0 0 7px color-mix(in srgb, var(--c1) 45%, #fff), 0 10px 28px color-mix(in srgb, var(--c1) 40%, transparent);
+    animation: b-bob 2.6s ease-in-out infinite; }
+  .bmobile .face::after { content: ""; position: absolute; inset: -10px; border-radius: 50%; border: 2px solid color-mix(in srgb, var(--c2) 60%, #fff); animation: b-ring 2.6s ease-out infinite; }
+  @keyframes b-sway { 0%, 100% { transform: rotate(-7deg); } 50% { transform: rotate(7deg); } }
+  @keyframes b-bob { 50% { transform: translateY(-5px) rotate(-3deg); } }
+  @keyframes b-ring { from { transform: scale(.9); opacity: .9; } to { transform: scale(1.35); opacity: 0; } }
+  .bribbon { position: relative; display: inline-block; margin: 6px auto 2px; padding: 7px 26px; color: #fff; font: 800 15px "Segoe UI", sans-serif; letter-spacing: .5px;
+    background: linear-gradient(90deg, var(--c1), var(--c2)); box-shadow: 0 6px 16px color-mix(in srgb, var(--c1) 35%, transparent);
+    clip-path: polygon(0 0, 100% 0, 94% 50%, 100% 100%, 0 100%, 6% 50%); animation: b-pop .7s cubic-bezier(.3,1.7,.5,1) both .3s; }
+  .bclub { margin-top: 6px; font: 700 12px "Segoe UI", sans-serif; letter-spacing: 2px; text-transform: uppercase; color: var(--c1); opacity: .85; }
+  .bname { margin-top: 2px; font: 400 30px "Great Vibes", cursive; color: var(--c2); }
+  .bsteps { display: flex; justify-content: center; gap: 14px; margin: 10px 0 6px; font-size: 18px; }
+  .bsteps span { opacity: 0; animation: b-step 3.6s ease-in-out infinite; }
+  .bsteps span:nth-child(odd) { transform: rotate(-14deg) translateY(4px); }
+  .bsteps span:nth-child(even) { transform: rotate(14deg) translateY(-4px); }
+  @keyframes b-step { 0%, 8% { opacity: 0; } 18%, 70% { opacity: .75; } 85%, 100% { opacity: 0; } }
+  @keyframes b-pop { from { transform: scale(.2); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  .cert { position: relative; margin: 16px auto 4px; max-width: 380px; padding: 18px 18px 54px; text-align: center; border-radius: 10px; color: #3f2d12;
+    background: repeating-linear-gradient(45deg, rgba(251,191,36,.05) 0 10px, transparent 10px 20px), #fffbeb;
+    border: 2px solid #d97706; box-shadow: inset 0 0 0 5px #fffbeb, inset 0 0 0 6px rgba(217,119,6,.5), 0 10px 24px rgba(146,64,14,.15); }
+  .cert h4 { margin: 0 0 6px; font: 800 12px "Segoe UI", sans-serif; letter-spacing: 3px; color: #b45309; }
+  .cert .who { font: 600 13px Georgia, serif; }
+  .cert .role { margin: 4px 0 10px; font: 400 40px/1.1 "Great Vibes", cursive; color: var(--c1); }
+  .cert dl { display: grid; grid-template-columns: auto 1fr; gap: 4px 10px; margin: 0 auto; max-width: 300px; text-align: left; font: 13px Georgia, serif; }
+  .cert dt { font-weight: 700; color: #92400e; white-space: nowrap; }
+  .cert dd { margin: 0; }
+  .cert .by { margin-top: 10px; font: italic 12px Georgia, serif; opacity: .8; }
+  .cert .stamp { position: absolute; right: 14px; bottom: 12px; padding: 4px 10px; border: 3px double #16a34a; border-radius: 8px; color: #16a34a;
+    font: 900 15px "Segoe UI", sans-serif; letter-spacing: 1px; transform: rotate(-14deg) scale(3); opacity: 0; background: rgba(255,255,255,.6); }
+  .cert.stamped .stamp { animation: b-stamp .45s cubic-bezier(.5,0,.75,0) forwards; }
+  @keyframes b-stamp { to { transform: rotate(-14deg) scale(1); opacity: .9; } }
+  @media (prefers-reduced-motion: reduce) {
+    .bmobile .hang, .bmobile .face, .bmobile .face::after, .bsteps span, .bribbon { animation: none; opacity: 1; }
+    .cert .stamp { transform: rotate(-14deg); opacity: .9; }
+  }
+  /* a new baby: a little cartoon (a bird brings the baby, milk, a burp, a sneeze), and the baby to tap */
+  .nursery { position: relative; height: 210px; margin-top: 6px; border-radius: 18px; overflow: hidden;
+    background: linear-gradient(#bae6fd, #fbcfe8 78%, #fde68a 78.5%, #fcd34d); box-shadow: inset 0 -6px 0 rgba(0,0,0,.05); }
+  .nursery .sun { position: absolute; right: 16px; top: 12px; font-size: 30px; animation: nap-sun 6s ease-in-out infinite; }
+  .nursery .cl { position: absolute; font-size: 30px; opacity: .9; animation: nap-cloud 18s linear infinite; }
+  .nursery .crib { position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); font-size: 62px; line-height: 1; }
+  .nursery .bird { position: absolute; top: 18px; left: 110%; font-size: 40px; line-height: 1; text-align: center; transition: left 2.4s ease-in-out, top 2.4s ease-in-out; }
+  .nursery .bird .wing { display: inline-block; transform: scaleX(-1); animation: nap-flap .25s ease-in-out infinite alternate; }
+  .nursery .bird .bundle { display: block; font-size: 30px; margin-top: -6px; transition: opacity .3s; }
+  .nursery .kid { position: absolute; left: 50%; bottom: 46px; font-size: 46px; line-height: 1; border: 0; background: none; padding: 0; cursor: pointer;
+    transform: translateX(-50%) scale(0); transition: transform .5s cubic-bezier(.3,1.8,.5,1); }
+  .nursery .kid.on { transform: translateX(-50%) scale(1); }
+  .nursery .kid.wiggle { animation: nap-wiggle .5s ease-in-out 2; }
+  .nursery .kid.drink { animation: nap-gulp .35s ease-in-out 6; }
+  .nursery .bottle { position: absolute; left: -15%; bottom: 70px; font-size: 32px; transform: rotate(-35deg); transition: left 1.2s ease-out, opacity .4s; }
+  .nursery .nap-say { position: absolute; left: 50%; bottom: 112px; transform: translateX(-50%) scale(.3); opacity: 0; white-space: nowrap;
+    padding: 6px 12px; border-radius: 16px; background: #fff; color: #0f172a; font: 800 15px "Segoe UI", sans-serif; box-shadow: 0 4px 14px rgba(0,0,0,.15);
+    transition: transform .3s cubic-bezier(.3,1.8,.5,1), opacity .25s; pointer-events: none; }
+  .nursery .nap-say::after { content: ""; position: absolute; left: 50%; bottom: -7px; margin-left: -7px; border: 7px solid transparent; border-bottom: 0; border-top-color: #fff; }
+  .nursery .nap-say.on { transform: translateX(-50%) scale(1); opacity: 1; }
+  .nursery .nap-say.big { font-size: 26px; color: #db2777; letter-spacing: 1px; }
+  .nursery .bub { position: absolute; bottom: 60px; font-size: 18px; animation: nap-bubble 1.6s ease-out forwards; pointer-events: none; }
+  @keyframes nap-flap { to { transform: scaleX(-1) translateY(-6px) rotate(-12deg); } }
+  @keyframes nap-wiggle { 0%, 100% { transform: translateX(-50%) rotate(0); } 25% { transform: translateX(-50%) rotate(-14deg); } 75% { transform: translateX(-50%) rotate(14deg); } }
+  @keyframes nap-gulp { 50% { transform: translateX(-50%) scale(1.08, .92); } }
+  @keyframes nap-bubble { to { transform: translate(var(--bx, 0), -120px) scale(1.4); opacity: 0; } }
+  @keyframes nap-sun { 50% { transform: rotate(12deg) scale(1.08); } }
+  @keyframes nap-cloud { from { transform: translateX(-120px); } to { transform: translateX(480px); } }
+  .diya { position: relative; font-size: 38px; line-height: 1; border: 0; background: none; padding: 14px 2px 0; cursor: pointer; filter: grayscale(1) brightness(.7); transition: filter .4s; }
+  .diya::before { content: ""; position: absolute; left: 50%; top: 4px; width: 10px; height: 16px; margin-left: -5px; border-radius: 50% 50% 45% 45%;
+                  background: radial-gradient(circle at 50% 70%, #fff7c2, #fbbf24 45%, #f97316 80%); box-shadow: 0 0 14px 6px rgba(251,191,36,.55);
+                  opacity: 0; transform: scale(.2); transform-origin: 50% 100%; transition: opacity .3s, transform .3s; }
+  .diya.lit { filter: none; }
+  .diya.lit::before { opacity: 1; transform: none; animation: flicker .5s ease-in-out infinite alternate; }
+  .sparkler { position: fixed; inset: 0; z-index: 25; background: rgba(7,10,20,.55); touch-action: none; cursor: crosshair; }
+  .sparkler-done { position: fixed; left: 50%; bottom: 20px; z-index: 31; transform: translateX(-50%); }
+  .gc-layer { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 6; mix-blend-mode: multiply; }
+  .gc-layer i { position: absolute; border-radius: 50%; transform: translate(-50%, -50%) scale(.2); opacity: .7; animation: splat .35s ease-out forwards; }
+  @keyframes splat { to { transform: translate(-50%, -50%) scale(1); } }
+  .paintable { cursor: pointer; touch-action: manipulation; }
+  .tie { position: relative; height: 120px; margin-top: 6px; touch-action: none; user-select: none; }
+  .tie .hand { position: absolute; right: 18%; top: 14px; font-size: 76px; line-height: 1; }
+  .tie .rakhi { position: absolute; left: 14%; top: 34px; font-size: 40px; line-height: 1; cursor: grab; border: 0; background: none; padding: 0;
+                filter: drop-shadow(0 0 10px rgba(253,224,71,.8)); animation: bob 1.4s ease-in-out infinite; }
+  .tie .rakhi.drag { cursor: grabbing; animation: none; }
+  .tie .rakhi.tied { animation: none; transition: left .3s, top .3s; }
+  .tree { position: relative; display: inline-block; font-size: 110px; line-height: 1; border: 0; background: none; padding: 0; cursor: pointer; }
+  .tree i { position: absolute; font-size: 16px; font-style: normal; transform: translate(-50%, -50%); animation: splat .3s ease-out; }
+  .tree i.star { font-size: 30px; }
+  .night { position: relative; height: 170px; margin-top: 6px; border-radius: 14px; overflow: hidden; cursor: pointer; touch-action: manipulation;
+           background: radial-gradient(circle at 50% 120%, #312e81, #0b1020 70%); }
+  .night .moon { position: absolute; left: 50%; top: 50%; font-size: 64px; line-height: 1; transform: translate(-50%, -50%); transition: filter 1s; }
+  .night.seen .moon { filter: drop-shadow(0 0 22px rgba(253,224,71,.95)); }
+  .night .cloud { position: absolute; font-size: 58px; line-height: 1; border: 0; background: none; padding: 0; cursor: pointer; transition: transform .9s ease-in, opacity .9s; }
+  .night .cloud.gone { opacity: 0; pointer-events: none; }
+  .night .tw { position: absolute; color: #fde68a; font-size: 12px; opacity: 0; animation: twinkle 1.6s ease-in-out infinite; }
+  .night.seen .tw { opacity: 1; }
+  @keyframes twinkle { 50% { opacity: .2; } }
+  .night .eidi { position: absolute; left: 50%; bottom: 10px; transform: translateX(-50%) scale(0); font: 700 14px "Segoe UI", sans-serif; color: #fde68a;
+                 transition: transform .5s cubic-bezier(.2, 1.4, .4, 1) .6s; white-space: nowrap; }
+  .night.seen .eidi { transform: translateX(-50%) scale(1); }
+  .fw { position: absolute; width: 6px; height: 6px; margin: -3px 0 0 -3px; border-radius: 50%; pointer-events: none;
+        animation: fw 1.1s cubic-bezier(.1, .7, .3, 1) forwards; box-shadow: 0 0 6px currentColor; background: currentColor; }
+  @keyframes fw { to { transform: translate(var(--dx), var(--dy)); opacity: 0; } }
+  .count { position: fixed; left: 50%; top: 45%; z-index: 26; transform: translate(-50%, -50%); color: #fff; pointer-events: none;
+           font: 800 120px/1 "Segoe UI", sans-serif; text-shadow: 0 0 30px rgba(253,224,71,.9); animation: count 1s ease-out forwards; }
+  @keyframes count { from { transform: translate(-50%, -50%) scale(1.8); opacity: 0; } 30% { opacity: 1; } to { transform: translate(-50%, -50%) scale(.8); opacity: 0; } }
+  .storm { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 19; }
+  .storm span { position: absolute; top: -20px; color: #fff; animation: fall linear forwards; }
+
+  /* the claim code under a silver layer, scratched off */
+  .scratch { position: relative; display: inline-block; }
+  .scratch canvas { position: absolute; inset: 0; width: 100%; height: 100%; border-radius: 10px; cursor: pointer; touch-action: none; transition: opacity .6s; }
+  .scratch canvas.off { opacity: 0; pointer-events: none; }
+
+  /* their own video message; the photos, one after another; who else signs */
+  .own-video { display: block; width: 100%; max-height: 320px; margin: 16px auto 0; border-radius: 12px; background: #000; }
+  .gc-photo { transition: opacity .5s; }
+  .gc-photo.fading { opacity: 0; }
+  .gc-dots { display: flex; justify-content: center; gap: 5px; margin: -4px 0 8px; }
+  .gc-dots i { width: 6px; height: 6px; border-radius: 50%; background: var(--c1-40); }
+  .gc-dots i.on { background: var(--c1); }
+  .gc-group { margin-top: 6px; font-size: 12px; color: #64748b; }
+  .gc-group b { display: inline-block; font: 400 22px/1.2 "Great Vibes", "Segoe Script", cursive; color: #0f172a; margin: 0 4px; }
+  .royal .gc-group { color: #e7c98a; }
+  .royal .gc-group b { color: #fff3d6; }
+  .sign .group { display: block; margin-top: 4px; font-size: 13px; }
+
+  /* a card back to them, made right here */
+  .back-card { margin: 14px auto 0; max-width: 360px; padding: 12px; border-radius: 12px; border: 1px dashed var(--c1-40); text-align: left; background: rgba(255,255,255,.9); }
+  .back-card input, .back-card textarea { width: 100%; margin-top: 6px; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 8px; font: 14px "Segoe UI", sans-serif; }
+  .back-card textarea { resize: vertical; min-height: 70px; }
+  .back-card .gc-tools { margin-top: 10px; }
+  @media (prefers-reduced-motion: reduce) { .fx, .gift .box, .music.on, .wait .notes { animation: none !important; } .fx { display: none; } }
+</style>
+</head>
+<body>
+<div class="fx" id="fx" aria-hidden="true"></div>
+<div class="wrap">
+  <div class="lock" id="lock" hidden>
+    <div class="padlock">🔒</div>
+    <h1 id="lockTitle"></h1>
+    <p id="lockWhen"></p>
+    <div class="left" id="lockLeft"></div>
+  </div>
+  <div class="gift" id="gift" role="button" tabindex="0" aria-label="Open your gift">
+    <div class="box">🎁</div>
+    <h1 id="giftTitle">You've got a gift!</h1>
+    <p id="giftFrom"></p>
+    <div class="tap" data-t="tap">Tap to open</div>
+  </div>
+
+  <div class="card" id="card" aria-live="polite">
+    <div class="banner">
+      <div class="mark" id="mark">🎉</div>
+      <div class="greet" id="greet"></div>
+      <div class="from" id="from"></div>
+    </div>
+    <div class="body">
+      <div class="wait" id="wait"><span class="notes">🎶</span> Listen… your gift is on its way!</div>
+      <div class="voucher" id="voucher" hidden>
+        <div id="msg"></div>
+        <div id="giftPart">
+          <div class="label" data-t="voucher">Gift voucher</div>
+          <div class="amount" id="amount"></div>
+          <div id="codeBox"></div>
+          <div class="how" data-t="how">The sender has told you where to use this code. This page never asks for a password, OTP or card details.</div>
+        </div>
+      </div>
+    </div>
+    <div class="sign"><span data-t="love">With love,</span><br><b id="sign"></b></div>
+  </div>
+  <div class="bad" id="bad" hidden data-t="bad">This gift link looks broken. Ask the sender to send it again 🙏</div>
+  <p class="about" data-t="about">A personal greeting card made by a friend. Nothing to sign in to, nothing to install, and no payment or personal details ever asked for.</p>
+</div>
+<button class="lang" id="lang" type="button" aria-label="Language">हिंदी</button>
+<button class="music" id="music" type="button" aria-label="Music on / off">🔊</button>
+<audio id="song" preload="auto"></audio>
+<audio id="voice" preload="auto"></audio>
+<audio id="crackers" preload="auto"></audio>
+
+<script>
+(function () {
+  // keep in step with STYLES in host-agent services/extras/festival_gifts.py
+  var STYLES = [
+    ["christmas", "#b91c1c", "#166534", "🎄", "Merry Christmas", "christmas", "❄"],
+    ["new year", "#1e3a8a", "#a16207", "🎆", "Happy New Year", "christmas", "✨"],
+    ["diwali", "#c2410c", "#a16207", "🪔", "Happy Diwali", "diwali", "✨"],
+    ["holi", "#be185d", "#7c3aed", "🎨", "Happy Holi", "festival", "●"],
+    ["raksha", "#b45309", "#be123c", "🎁", "Happy Raksha Bandhan", "festival", "✨"],
+    ["eid", "#065f46", "#a16207", "🌙", "Eid Mubarak", "festival", "✦"],
+    ["birthday", "#7c3aed", "#db2777", "🎂", "Happy Birthday", "birthday", "🎈"],
+    ["ganesh", "#c2410c", "#be123c", "🐘", "Ganpati Bappa Morya", "festival", "🌺"],
+    ["navratri", "#be123c", "#c2410c", "💃", "Happy Navratri", "festival", "✨"],
+    ["dussehra", "#b45309", "#7f1d1d", "🏹", "Happy Dussehra", "festival", "🔥"],
+    ["durga", "#b91c1c", "#a16207", "🔱", "Happy Durga Puja", "festival", "🌺"],
+    ["pongal", "#a16207", "#15803d", "🌾", "Happy Pongal", "festival", "🌾"],
+    ["sankranti", "#0369a1", "#c2410c", "🪁", "Happy Makar Sankranti", "festival", "🪁"],
+    ["lohri", "#c2410c", "#a16207", "🔥", "Happy Lohri", "festival", "✨"],
+    ["onam", "#a16207", "#15803d", "🌼", "Happy Onam", "festival", "🌼"],
+    ["karva", "#be123c", "#a16207", "🌕", "Happy Karva Chauth", "festival", "✨"],
+    ["anniversary", "#be123c", "#7c3aed", "💞", "Happy Anniversary", "festival", "❤"],
+    ["valentine", "#e11d48", "#be185d", "❤️", "Happy Valentine's Day", "festival", "❤"],
+    // congratulations, any day: a new baby, a wedding, a new job / result / home …
+    // "baby": its own lullaby and Jarvis's voice (songs/baby.mp3, voices/baby(-wish).mp3)
+    ["baby", "#0284c7", "#db2777", "👶", "Congratulations", "baby", "🧸"],
+    ["wedding", "#be123c", "#a16207", "💍", "Happy Married Life", "festival", "🌸"],
+    ["congrat", "#7c3aed", "#0e7490", "🎉", "Congratulations", "festival", "🎊"]
+  ];
+  var HINDI = { christmas: "क्रिसमस की शुभकामनाएँ", "new year": "नव वर्ष की शुभकामनाएँ", diwali: "शुभ दीपावली",
+    holi: "होली की शुभकामनाएँ", raksha: "रक्षाबंधन की शुभकामनाएँ", eid: "ईद मुबारक", birthday: "जन्मदिन की शुभकामनाएँ",
+    ganesh: "गणपति बाप्पा मोरया", navratri: "नवरात्रि की शुभकामनाएँ", dussehra: "दशहरा की शुभकामनाएँ",
+    durga: "दुर्गा पूजा की शुभकामनाएँ", pongal: "पोंगल की शुभकामनाएँ", sankranti: "मकर संक्रांति की शुभकामनाएँ",
+    lohri: "लोहड़ी की लख-लख बधाइयाँ", onam: "ओणम की शुभकामनाएँ", karva: "करवा चौथ की शुभकामनाएँ",
+    anniversary: "सालगिरह मुबारक", valentine: "वैलेंटाइन डे मुबारक",
+    baby: "नन्हे मेहमान की बहुत-बहुत बधाई", wedding: "शादी की हार्दिक शुभकामनाएँ", congrat: "बहुत-बहुत बधाई" };
+  var $ = function (id) { return document.getElementById(id); };
+  // bump when songs/ or voices/ change, so no browser plays the old ones from its cache
+  var AUDIO = 4;
+
+  // the page's own words, in English or Hindi (the switch top right; the
+  // card's title and message are the sender's, and stay as they wrote them)
+  var T = {
+    en: {
+      secretAsk: "Answer this to open your card 🔐", secretPh: "Your answer", secretOpen: "Open 🔓",
+      secretWrong: "Not quite, try again 🙂", secretOld: "This browser can't open locked cards. Try Chrome or Safari.",
+      tap: "Tap to open", voucher: "Gift voucher", love: "With love,",
+      how: "The sender has told you where to use this code. This page never asks for a password, OTP or card details.",
+      about: "A personal greeting card made by a friend. Nothing to sign in to, nothing to install, and no payment or personal details ever asked for.",
+      bad: "This gift link looks broken. Ask the sender to send it again 🙏",
+      title: "{greet}{to}!", sentGift: "{from} sent you a gift", sentGift2: "{from} sent you a gift 🎁",
+      sentCard: "{from} sent you a greeting 💌", fromMany: "{from} & {n} others", alsoSign: "and {names}",
+      listenGift: "Listen… your gift is on its way!", listenCard: "Listen… your card is on its way!",
+      wayGift: "Your gift is on its way!", wayCard: "Your card is on its way!",
+      code: "Gift code", copy: "Copy", copied: "Copied ✓", selcopy: "Select & copy", later: "Your gift code will reach you separately.",
+      scratch: "Scratch here ✨", hear: "🔊 Listen", flip: "🔄 Turn over", flipBack: "🔄 Front", backNote: "Made just for you 💝",
+      scratchPic: "Scratch to see the photo ✨", micBlow: "🎤 Blow (mic)", micNow: "Blow into the mic now… 🌬️", micNo: "😕 No mic",
+      game: "🎮 Catch game", caught: "Caught: {n}", gameOver: "You caught {n}! 🎉", playAgain: "🔁 Play again", gameClose: "✖ Close",
+      reactBody: "Loved your card, {from}!", seenAsk: "Let {from} know you've opened it?", seenYes: "💬 Yes, on WhatsApp",
+      seenNo: "No, thanks", seenBody: "I opened your card, {from}! 💌", share: "📤 Share", save: "⬇ Save", failed: "😕 Couldn't make it",
+      video: "🎬 Video", making: "🎬 Making…", thanks: "💌 Say thanks", thanksBody: "Thank you so much, {from}! 🙏",
+      whatsapp: "💬 WhatsApp", here: "Here you go, for you! {gem}", sound: "🔊 Tap anywhere for sound",
+      blow: "🕯️ Blow!",
+      wish: "Make a wish first… ✨", wishDone: "May your wish come true! 🎂", hbd: "🎉 Happy Birthday!",
+      lockGift: "Your gift opens on its day", lockCard: "Your card opens on its day", opensOn: "{date}",
+      days: "days", hrs: "hrs", mins: "min", secs: "sec",
+      diyaHint: "Tap the diyas to light them 🪔", diyaDone: "Shubh Deepavali! ✨", sparkler: "🎇 Sparkler", sparklerDone: "✓ Done",
+      holiHint: "Tap the card to throw colours 🎨", holiDone: "Bura na mano, Holi hai! 🎉",
+      rakhiHint: "Drag the rakhi to the wrist 🪢", rakhiDone: "Rakhi tied! A bond forever 💞",
+      treeHint: "Tap the tree to decorate it 🎄", treeDone: "Beautiful! Merry Christmas ⭐", snow: "❄ Let it snow",
+      nyBtn: "🎆 Start the countdown", nyHint: "Tap the sky for more fireworks 🎇", nyNow: "Happy New Year! 🎉",
+      babyBoy: "It's a Boy! 💙", babyGirl: "It's a Girl! 💗", babyHere: "The little one is here! 🤍", babyWelcome: "Welcome, little {name}",
+      clubDad: "Welcome to the Papa Club 👨‍🍼", clubMom: "Welcome to the Mummy Club 👩‍🍼", clubBoth: "Welcome to the Parents Club 👪",
+      certHead: "🎖️ OFFICIAL PROMOTION LETTER", certWho: "This is to certify that {to} has been promoted to", certYou: "you have",
+      roleDad: "Papa", roleMom: "Mummy", roleBoth: "Mummy & Papa",
+      certSalary: "Salary", certSalaryV: "Unlimited hugs & giggles 🤗", certShift: "Working hours", certShiftV: "24 × 7, no Sunday off 😅",
+      certPerks: "Perks", certPerksV: "Tiny hands, big love 💙", certBoss: "New boss", certBossV: "{name} 👶", certBaby: "The baby",
+      certBy: "Signed with love, {from} & the whole family 💐", certStamp: "APPROVED ✅",
+      babyHint: "Tap the baby for a giggle 👶", babyDone: "So cute! Congratulations 💙", babyPlay: "🎬 Play again",
+      babyFeed: "🍼 Feed", babyTickle: "🤭 Tickle", babyBurp: "BURRP! 😆", babySneeze: "Aaa-chhoo! 🤧",
+      babyLines: ["I'm here! 😎", "Milk first, talk later 🍼", "Diaper check, please 🙈", "Hi everyone! 👋", "Hehehe 🤭",
+        "Who's this? 🧐", "Sleep? Never! 😜", "I'm the boss now 👑"],
+      eidHint: "Tap the clouds to spot the moon 🌙", eidDone: "Eid Mubarak! 🌙", eidi: "💰 Here's your Eidi!", eidSeen: "🌙 Chaand Mubarak!",
+      back: "💌 Send them a card", backName: "Your name", backMsg: "{greet}{to}! 💌\nThank you for the lovely card.",
+      backSend: "📤 Send", backCopy: "📋 Copy link", backCopied: "Link copied ✓", backText: "{from} sent you a card 💌"
+    },
+    hi: {
+      secretAsk: "कार्ड खोलने के लिए इसका जवाब दो 🔐", secretPh: "आपका जवाब", secretOpen: "खोलो 🔓",
+      secretWrong: "सही नहीं, फिर कोशिश करो 🙂", secretOld: "यह ब्राउज़र लॉक वाले कार्ड नहीं खोल पाता। Chrome या Safari में खोलो।",
+      tap: "खोलने के लिए टैप करें", voucher: "गिफ़्ट वाउचर", love: "ढेर सारे प्यार के साथ,",
+      how: "यह कोड कहाँ इस्तेमाल करना है, भेजने वाले ने आपको बताया है। यह पेज कभी पासवर्ड, OTP या कार्ड की जानकारी नहीं माँगता।",
+      about: "किसी दोस्त का बनाया एक निजी शुभकामना कार्ड। न कोई लॉगिन, न कुछ इंस्टॉल करना, और न कभी पैसे या निजी जानकारी माँगी जाती है।",
+      bad: "यह गिफ़्ट लिंक टूटा हुआ लगता है। भेजने वाले से दोबारा भेजने को कहें 🙏",
+      title: "{greet}{to}!", sentGift: "{from} ने आपको एक तोहफ़ा भेजा है", sentGift2: "{from} ने आपको एक तोहफ़ा भेजा है 🎁",
+      sentCard: "{from} ने आपको शुभकामनाएँ भेजी हैं 💌", fromMany: "{from} और {n} अन्य", alsoSign: "और {names}",
+      listenGift: "सुनिए… आपका तोहफ़ा आ रहा है!", listenCard: "सुनिए… आपका कार्ड आ रहा है!",
+      wayGift: "आपका तोहफ़ा आ रहा है!", wayCard: "आपका कार्ड आ रहा है!",
+      code: "गिफ़्ट कोड", copy: "कॉपी", copied: "कॉपी हो गया ✓", selcopy: "चुनकर कॉपी करें", later: "आपका गिफ़्ट कोड अलग से पहुँचेगा।",
+      scratch: "यहाँ घिसो ✨", hear: "🔊 सुनो", flip: "🔄 पलटो", flipBack: "🔄 आगे", backNote: "सिर्फ़ आपके लिए 💝",
+      scratchPic: "फ़ोटो देखने के लिए घिसो ✨", micBlow: "🎤 फूँको (माइक)", micNow: "अब माइक में फूँक मारो… 🌬️", micNo: "😕 माइक नहीं मिला",
+      game: "🎮 पकड़ो गेम", caught: "पकड़े: {n}", gameOver: "आपने {n} पकड़े! 🎉", playAgain: "🔁 फिर खेलो", gameClose: "✖ बंद करो",
+      reactBody: "आपका कार्ड बहुत पसंद आया, {from}!", seenAsk: "{from} को बता दें कि आपने कार्ड खोल लिया?", seenYes: "💬 हाँ, WhatsApp पर",
+      seenNo: "नहीं, रहने दो", seenBody: "मैंने आपका कार्ड खोल लिया, {from}! 💌", share: "📤 शेयर", save: "⬇ सेव", failed: "😕 नहीं बना",
+      video: "🎬 वीडियो", making: "🎬 बन रहा है…", thanks: "💌 शुक्रिया बोलो", thanksBody: "बहुत-बहुत शुक्रिया, {from}! 🙏",
+      whatsapp: "💬 WhatsApp", here: "ये लो, आपके लिए! {gem}", sound: "🔊 आवाज़ के लिए कहीं भी टैप करो",
+      blow: "🕯️ फूँक मारो!",
+      wish: "पहले एक विश माँगो… ✨", wishDone: "विश पूरी हो! 🎂", hbd: "🎉 जन्मदिन मुबारक!",
+      lockGift: "आपका तोहफ़ा अपने दिन खुलेगा", lockCard: "आपका कार्ड अपने दिन खुलेगा", opensOn: "{date}",
+      days: "दिन", hrs: "घंटे", mins: "मिनट", secs: "सेकंड",
+      diyaHint: "दीये जलाने के लिए उन पर टैप करो 🪔", diyaDone: "शुभ दीपावली! ✨", sparkler: "🎇 फुलझड़ी", sparklerDone: "✓ बस",
+      holiHint: "रंग उड़ाने के लिए कार्ड पर टैप करो 🎨", holiDone: "बुरा न मानो, होली है! 🎉",
+      rakhiHint: "राखी को कलाई तक खींचो 🪢", rakhiDone: "राखी बँध गई! यह बंधन सदा रहे 💞",
+      treeHint: "पेड़ सजाने के लिए उस पर टैप करो 🎄", treeDone: "वाह! मेरी क्रिसमस ⭐", snow: "❄ बर्फ़ गिराओ",
+      nyBtn: "🎆 काउंटडाउन शुरू करो", nyHint: "और पटाखों के लिए आसमान पर टैप करो 🎇", nyNow: "नया साल मुबारक! 🎉",
+      babyBoy: "बेटा हुआ है! 💙", babyGirl: "बेटी हुई है! 💗", babyHere: "नन्हा मेहमान आ गया! 🤍", babyWelcome: "स्वागत है, नन्हे {name}",
+      clubDad: "पापा क्लब में स्वागत है 👨‍🍼", clubMom: "मम्मी क्लब में स्वागत है 👩‍🍼", clubBoth: "मम्मी-पापा क्लब में स्वागत है 👪",
+      certHead: "🎖️ आधिकारिक प्रमोशन लेटर", certWho: "प्रमाणित किया जाता है कि {to} को प्रमोशन मिला है:", certYou: "आप",
+      roleDad: "पापा", roleMom: "मम्मी", roleBoth: "मम्मी-पापा",
+      certSalary: "सैलरी", certSalaryV: "अनलिमिटेड झप्पियाँ और किलकारियाँ 🤗", certShift: "ड्यूटी", certShiftV: "24 × 7, संडे की छुट्टी नहीं 😅",
+      certPerks: "फ़ायदे", certPerksV: "नन्हे हाथ, ढेर सारा प्यार 💙", certBoss: "नया बॉस", certBossV: "{name} 👶", certBaby: "बेबी",
+      certBy: "ढेर सारे प्यार से, {from} और पूरा परिवार 💐", certStamp: "मंज़ूर ✅",
+      babyHint: "हँसाने के लिए बेबी पर टैप करो 👶", babyDone: "कितना प्यारा! बहुत-बहुत बधाई 💙", babyPlay: "🎬 फिर से देखो",
+      babyFeed: "🍼 दूध पिलाओ", babyTickle: "🤭 गुदगुदी", babyBurp: "डकार! 😆", babySneeze: "आ-छीं! 🤧",
+      babyLines: ["मैं आ गया! 😎", "पहले दूध, फिर बात 🍼", "डायपर चेक करो 🙈", "सबको हाय! 👋", "हीहीही 🤭",
+        "ये कौन है? 🧐", "सोना? कभी नहीं! 😜", "अब घर का बॉस मैं हूँ 👑"],
+      eidHint: "चाँद देखने के लिए बादलों पर टैप करो 🌙", eidDone: "ईद मुबारक! 🌙", eidi: "💰 ये रही आपकी ईदी!", eidSeen: "🌙 चाँद मुबारक!",
+      back: "💌 इन्हें भी कार्ड भेजो", backName: "आपका नाम", backMsg: "{greet}{to}! 💌\nप्यारे कार्ड के लिए बहुत-बहुत शुक्रिया।",
+      backSend: "📤 भेजो", backCopy: "📋 लिंक कॉपी", backCopied: "लिंक कॉपी हो गया ✓", backText: "{from} ने आपको कार्ड भेजा है 💌"
+    }
+  };
+  var lang = "en", texts = [];
+  // an argument can be a function: worked out again in the other language
+  var t = function (key, args) {
+    return (T[lang][key] || T.en[key] || key).replace(/\{(\w+)\}/g, function (_, k) {
+      var v = args && args[k];
+      return v == null ? "" : typeof v === "function" ? v() : v;
+    });
+  };
+  // the element's text, kept in step with the switch
+  var put = function (el, key, args) {
+    el._t = [key, args];
+    if (texts.indexOf(el) === -1) texts.push(el);
+    el.textContent = t(key, args);
+    return el;
+  };
+  var applyLang = function () {
+    document.documentElement.lang = lang;
+    $("lang").textContent = lang === "hi" ? "English" : "हिंदी";
+    Array.prototype.forEach.call(document.querySelectorAll("[data-t]"), function (el) { el.textContent = t(el.getAttribute("data-t")); });
+    texts.forEach(function (el) { el.textContent = t(el._t[0], el._t[1]); });
+  };
+  // a buzz on the phone with each cracker, and when something's done
+  var buzz = function (p) {
+    // only after a tap: before one the browser refuses (and says so in the console)
+    if (!navigator.vibrate || (navigator.userActivation && !navigator.userActivation.hasBeenActive)) return;
+    try { navigator.vibrate(p); } catch (e) { /* not on this one */ }
+  };
+  var still = function () { return window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches; };
+  var el = function (tag, cls, text) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text != null) e.textContent = text;
+    if (tag === "button") e.type = "button";
+    return e;
+  };
+
+  var data = null;
+  try {
+    var b64 = location.hash.slice(1).replace(/-/g, "+").replace(/_/g, "/");
+    var bin = atob(b64 + "===".slice((b64.length + 3) % 4));
+    data = JSON.parse(new TextDecoder().decode(Uint8Array.from(bin, function (ch) { return ch.charCodeAt(0); })));
+  } catch (e) { data = null; }
+  var saved = null;
+  try { saved = localStorage.getItem("giftLang"); } catch (e) { /* private window */ }
+  lang = saved === "hi" || saved === "en" ? saved : data && data.l === "hi" ? "hi" : "en";
+  $("lang").onclick = function () {
+    lang = lang === "hi" ? "en" : "hi";
+    try { localStorage.setItem("giftLang", lang); } catch (e) { /* private window */ }
+    applyLang();
+  };
+  if (!data || typeof data !== "object") {
+    $("gift").hidden = true;
+    $("bad").hidden = false;
+    applyLang();
+    return;
+  }
+  // the link's own text: shown as text only, never as markup
+  var str = function (v, max) { return String(v == null ? "" : v).slice(0, max); };
+  var https = function (v) { return /^https:\/\/[^\s"'<>]+$/.test(v) ? v : ""; };
+
+  // a card locked behind their question (lock_card() in festival_gifts.py): the answer
+  // makes the key (PBKDF2), the tag says whether it's right, then the card's undone
+  var unb64 = function (v) {
+    v = String(v || "").replace(/-/g, "+").replace(/_/g, "/");
+    var b = atob(v + "===".slice((v.length + 3) % 4));
+    return Uint8Array.from(b, function (ch) { return ch.charCodeAt(0); });
+  };
+  var openLocked = function (locked, answer) {
+    var sub = window.crypto && crypto.subtle;
+    if (!sub) return Promise.reject(new Error("old"));
+    var said = String(answer).normalize("NFC").toLowerCase().replace(/\s+/g, " ").trim().slice(0, 80);
+    var salt = unb64(locked.s), iv = unb64(locked.i), sealed = unb64(locked.e), tag = unb64(locked.k);
+    var hmac = function (raw, use) { return sub.importKey("raw", raw, { name: "HMAC", hash: "SHA-256" }, false, [use]); };
+    var bits;
+    return sub.importKey("raw", new TextEncoder().encode(said), "PBKDF2", false, ["deriveBits"])
+      .then(function (k) { return sub.deriveBits({ name: "PBKDF2", salt: salt, iterations: 150000, hash: "SHA-256" }, k, 512); })
+      .then(function (b) {
+        bits = new Uint8Array(b);
+        var signed = new Uint8Array(iv.length + sealed.length);
+        signed.set(iv);
+        signed.set(sealed, iv.length);
+        return hmac(bits.slice(32), "verify").then(function (mk) { return sub.verify("HMAC", mk, tag, signed); });
+      })
+      .then(function (ok) {
+        if (!ok) throw new Error("wrong");
+        return hmac(bits.slice(0, 32), "sign");
+      })
+      .then(function (ek) {
+        var blocks = [];
+        for (var i = 0; i * 32 < sealed.length; i++) {
+          var at = new Uint8Array(iv.length + 4);
+          at.set(iv);
+          new DataView(at.buffer).setUint32(iv.length, i);
+          blocks.push(sub.sign("HMAC", ek, at));
+        }
+        return Promise.all(blocks);
+      })
+      .then(function (parts) {
+        var stream = parts.map(function (p) { return new Uint8Array(p); }), out = new Uint8Array(sealed.length);
+        for (var j = 0; j < sealed.length; j++) out[j] = sealed[j] ^ stream[j >> 5][j & 31];
+        return JSON.parse(new TextDecoder().decode(out));
+      });
+  };
+  var askAnswer = function (locked) {
+    $("gift").hidden = true;
+    var box = el("form", "lock secret");
+    box.appendChild(el("div", "padlock", "🔐"));
+    box.appendChild(el("h1", "", str(locked.q, 120)));
+    box.appendChild(put(el("p"), "secretAsk"));
+    var input = el("input");
+    input.autocomplete = "off";
+    input.maxLength = 80;
+    input.setAttribute("aria-label", t("secretPh"));
+    var go = put(el("button"), "secretOpen");
+    go.type = "submit";
+    var wrong = el("p", "wrong");
+    wrong.setAttribute("aria-live", "polite");
+    [input, go, wrong].forEach(function (e) { box.appendChild(e); });
+    box.onsubmit = function (e) {
+      e.preventDefault();
+      if (!input.value.trim()) { input.focus(); return; }
+      go.disabled = true;
+      wrong.textContent = "";
+      openLocked(locked, input.value).then(function (card) {
+        // open for the rest of this tab: kept in sessionStorage, else put in the link itself
+        try {
+          sessionStorage.setItem("giftOpen", JSON.stringify({ h: location.hash, card: card }));
+        } catch (err) {
+          var raw = new TextEncoder().encode(JSON.stringify(card)), bin = "";
+          raw.forEach(function (b) { bin += String.fromCharCode(b); });
+          location.replace("#" + btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""));
+        }
+        location.reload();
+      }).catch(function (err) {
+        put(wrong, err && err.message === "old" ? "secretOld" : "secretWrong");
+        box.classList.remove("shake");
+        void box.offsetWidth; // again from the start
+        box.classList.add("shake");
+        go.disabled = false;
+        input.select();
+      });
+    };
+    $("bad").before(box);
+    applyLang();
+    input.placeholder = t("secretPh");
+    input.focus();
+  };
+  if (data.lk === 1) {
+    var unlocked = null;
+    try { unlocked = JSON.parse(sessionStorage.getItem("giftOpen") || "null"); } catch (e) { /* private window */ }
+    if (unlocked && unlocked.h === location.hash && unlocked.card && typeof unlocked.card === "object") {
+      data = unlocked.card;
+    } else if (typeof data.q === "string" && data.e) {
+      askAnswer(data);
+      return;
+    } else {
+      $("gift").hidden = true;
+      $("bad").hidden = false;
+      applyLang();
+      return;
+    }
+  }
+  var festival = str(data.f, 60), to = str(data.t, 60), from = str(data.n, 60) || "A friend";
+  // a new baby's card: bp its papa / mummy / both, bg a boy / girl (its colours), bn the baby's name
+  var babyFor = ["dad", "mom", "both"].indexOf(data.bp) !== -1 ? data.bp : "dad";
+  var babyName = str(data.bn, 40);
+  var amount = Number(data.a) || 0, code = str(data.c, 30).replace(/[^A-Za-z0-9-]/g, "").toUpperCase(), message = str(data.m, 600);
+  // others who sign it with them (a group card)
+  var oms = Array.isArray(data.om) ? data.om : [];
+  var signers = (Array.isArray(data.o) ? data.o : []).map(function (n, i) { return { name: str(n, 40).trim(), note: str(oms[i], 140).trim() }; })
+    .filter(function (s) { return s.name; }).slice(0, 10);
+  var others = signers.map(function (s) { return s.name; });
+  // their signature, drawn in the form (only M / L and numbers: never markup)
+  var SIG = /^[ML0-9 ]{1,3000}$/.test(str(data.sg, 3000)) ? str(data.sg, 3000) : "";
+  var signature = function () {
+    var ns = "http://www.w3.org/2000/svg", svg = document.createElementNS(ns, "svg"), p = document.createElementNS(ns, "path");
+    svg.setAttribute("viewBox", "0 0 200 80"); svg.setAttribute("class", "sig"); svg.setAttribute("aria-hidden", "true");
+    p.setAttribute("d", SIG);
+    svg.appendChild(p);
+    return svg;
+  };
+  // the others' few words, as sticky notes (none: null)
+  var stickies = function () {
+    var said = signers.filter(function (s) { return s.note; });
+    if (!said.length) return null;
+    var box = el("div", "gc-notes");
+    said.forEach(function (s, i) {
+      var n = el("div", "note");
+      n.style.setProperty("--r", (i % 2 ? 2.5 : -2.5) + "deg");
+      n.appendChild(el("p", "", s.note));
+      n.appendChild(el("b", "", "— " + s.name));
+      box.appendChild(n);
+    });
+    return box;
+  };
+  // their WhatsApp number (for the thank-you), and their own voice or video
+  var phone = str(data.w, 20).replace(/\D/g, "");
+  if (phone.length < 8) phone = "";
+  var media = https(str(data.v, 500)), video = Boolean(media) && data.vk === "v";
+  // the buttons under the card the sender turned off
+  var off = Array.isArray(data.x) ? data.x : [];
+  var shows = function (action) { return off.indexOf(action) < 0; };
+  // 3D: --px, --py (-1 … 1) on the page, from the mouse or the way the phone's held;
+  // the card leans by them (tilt), the background's layers shift (depth), the photo in its frame (frame)
+  if (!still() && (shows("tilt") || shows("depth") || shows("frame"))) {
+    var near = function (n) { return Math.max(-1, Math.min(1, n)); };
+    var lean = function (x, y) {
+      document.documentElement.style.setProperty("--px", near(x).toFixed(3));
+      document.documentElement.style.setProperty("--py", near(y).toFixed(3));
+    };
+    window.addEventListener("pointermove", function (e) {
+      if (e.pointerType !== "mouse") return;
+      lean((e.clientX / innerWidth * 2 - 1) * 1.5, (e.clientY / innerHeight * 2 - 1) * 1.5);
+    });
+    document.addEventListener("mouseleave", function () { lean(0, 0); });
+    window.addEventListener("deviceorientation", function (e) {
+      if (e.gamma == null) return;
+      lean(e.gamma / 25, (e.beta - 45) / 25); // held at ~45° is level
+    });
+  }
+  var tilt3d = function (box) {
+    if (!shows("tilt") || still()) return;
+    box.classList.add("tilt3d");
+    box.appendChild(el("div", "glare no-shot"));
+  };
+
+  var low = festival.toLowerCase();
+  var st = STYLES.filter(function (s) { return low.indexOf(s[0]) !== -1; })[0] ||
+    ["", "#4338ca", "#0e7490", "🎉", festival ? "Happy " + festival : "A gift for you", "festival", "✨"];
+  // a new baby: a boy's card blue, a girl's pink (bg), both when it's a surprise
+  if (st[0] === "baby" && (data.bg === "boy" || data.bg === "girl")) {
+    st = st.slice();
+    st[1] = data.bg === "boy" ? "#0369a1" : "#be185d";
+    st[2] = data.bg === "boy" ? "#38bdf8" : "#f472b6";
+  }
+  document.documentElement.style.setProperty("--c1", st[1]);
+  document.documentElement.style.setProperty("--c2", st[2]);
+  document.documentElement.style.setProperty("--fest1", st[1]); // kept when a photo re-colours the card
+  document.documentElement.style.setProperty("--fest2", st[2]);
+  // the greeting card's colours, mixed here (see .gcard)
+  var mix = function (a, b, t) {
+    var n = function (h, k) { return parseInt(h.slice(1 + 2 * k, 3 + 2 * k), 16); };
+    return "#" + [0, 1, 2].map(function (k) {
+      return ("0" + Math.round(n(a, k) * t + n(b, k) * (1 - t)).toString(16)).slice(-2);
+    }).join("");
+  };
+  [["--paper", st[2], "#fffdf7", .12], ["--c1-35", st[1], "#ffffff", .35], ["--c1-40", st[1], "#ffffff", .4],
+   ["--c1-50", st[1], "#ffffff", .5], ["--c1-60", st[1], "#ffffff", .6], ["--night", st[1], "#1c1206", .5]].forEach(function (c) {
+    document.documentElement.style.setProperty(c[0], mix(c[1], c[2], c[3]));
+  });
+  document.title = st[3] + " " + st[4] + (to ? ", " + to : "") + "!";
+  // a greeting card (no gift in it): 💌 where the gift would be
+  var only = data.g === 1, what = only ? "card" : "gift", gem = only ? "💌" : "🎁";
+  // Diwali goes straight to the gift, no tune first (so does a card the tune's turned off on)
+  var tune = st[0] === "diwali" || !shows("song") ? "" : st[5];
+  // a birthday's a party: balloons up, confetti, a cake to blow out
+  var party = st[0] === "birthday";
+  var greet = function () { return lang === "hi" && HINDI[st[0]] || st[4]; };
+  var fromAll = function () { return others.length ? t("fromMany", { from: from, n: others.length }) : from; };
+
+  put($("giftTitle"), "title", { greet: greet, to: to ? ", " + to : "" });
+  put($("giftFrom"), only ? "sentCard" : "sentGift", { from: fromAll });
+  // the envelope (our own markup; the mark is from STYLES, never from the link)
+  var ENV = '<span class="env' + (shows("env3d") && !still() ? " env3d" : "") + '"><span class="back"></span><span class="letter"></span><span class="front"></span>' +
+    '<span class="flap"></span><span class="seal">' + st[3] + '</span></span>';
+  // the gift box in 3D (our own markup too)
+  var CUBE = shows("box3d") && !still() ? '<span class="cube"><b><i class="f1"></i><i class="f2"></i><i class="f3"></i>' +
+    '<i class="f4"></i><i class="f5"></i><i class="lid"></i></b></span>' : "";
+  if (only) document.querySelector("#gift .box").innerHTML = ENV;
+  else if (CUBE) document.querySelector("#gift .box").innerHTML = CUBE;
+  else document.querySelector("#gift .box").textContent = gem;
+  $("mark").textContent = st[3];
+  put($("greet"), "title", { greet: greet, to: "" });
+  put($("from"), only ? "sentCard" : "sentGift2", { from: fromAll });
+  $("wait").innerHTML = tune ? '<span class="notes">🎶</span> ' : '<span class="notes">✨</span> ';
+  $("wait").appendChild(put(el("span"), tune ? (only ? "listenCard" : "listenGift") : (only ? "wayCard" : "wayGift")));
+  if (only) {
+    $("giftPart").hidden = true;
+    document.querySelector(".sign").hidden = true; // the card inside signs it
+    $("card").classList.add("greeting");
+    $("wait").style.visibility = "hidden"; // only where the envelope lands
+    if (party) {
+      $("card").classList.add("bare");
+      document.querySelector(".wrap").classList.add("wide");
+    }
+  }
+  // a gift card's photos, under its message, one after another (a greeting card has its own)
+  var giftPics = only ? [] : (Array.isArray(data.pp) ? data.pp : []).map(function (p) { return https(str(p, 500)); })
+    .filter(Boolean).slice(0, 8);
+  if (giftPics.length) {
+    var picsBox = el("div", "gift-pics"), giftPic = el("img", "gc-photo"), picAt = 0;
+    giftPic.alt = "";
+    giftPic.referrerPolicy = "no-referrer";
+    giftPic.onerror = function () {
+      giftPics.splice(picAt, 1); // not there
+      if (!giftPics.length) { picsBox.remove(); return; }
+      picAt %= giftPics.length;
+      giftPic.src = giftPics[picAt];
+    };
+    giftPic.src = giftPics[0];
+    picsBox.appendChild(giftPic);
+    $("msg").after(picsBox);
+    setInterval(function () {
+      if (giftPics.length < 2 || still()) return;
+      giftPic.classList.add("fading");
+      setTimeout(function () {
+        picAt = (picAt + 1) % giftPics.length;
+        giftPic.src = giftPics[picAt];
+        giftPic.classList.remove("fading");
+      }, 500);
+    }, 3500);
+  }
+  $("amount").textContent = amount > 0 ? "₹" + amount.toLocaleString("en-IN") : "";
+  $("sign").textContent = from;
+  if (others.length) document.querySelector(".sign").appendChild(put(el("span", "group"), "alsoSign", { names: others.join(", ") }));
+  // (a greeting card signs inside itself, not here)
+  if (SIG && !only) $("sign").after(signature());
+  var giftNotes = !only && stickies();
+  if (giftNotes) document.querySelector(".sign").appendChild(giftNotes);
+
+  var scratchUp = null, picUp = null; // the claim code's silver layer, drawn once the voucher shows
+  if (code) {
+    var box = el("div", "code");
+    var copy = put(el("button"), "copy");
+    copy.onclick = function () {
+      (navigator.clipboard ? navigator.clipboard.writeText(code) : Promise.reject()).then(
+        function () { put(copy, "copied"); },
+        function () { put(copy, "selcopy"); });
+    };
+    box.appendChild(el("span", "", code)); box.appendChild(copy);
+    var scratch = el("div", "scratch");
+    scratch.appendChild(box);
+    scratchUp = scratchify(scratch);
+    $("codeBox").appendChild(put(el("div", "label"), "code")); $("codeBox").appendChild(scratch);
+  } else {
+    $("codeBox").appendChild(put(el("div", "later"), "later"));
+  }
+  // the claim code under a silver layer, scratched off with a finger (Enter
+  // on it, for a keyboard); returns what draws it, once it has a size
+  function scratchify(wrap, key) {
+    var cv = el("canvas"), g = null, rubs = 0, gone = false, down = false;
+    cv.tabIndex = 0;
+    cv.setAttribute("role", "button");
+    cv.setAttribute("aria-label", "Scratch to see the gift code");
+    wrap.appendChild(cv);
+    var clear = function () {
+      if (gone) return;
+      gone = true;
+      cv.classList.add("off");
+      buzz(100);
+      confetti(60);
+      setTimeout(function () { cv.remove(); }, 700);
+    };
+    // how much of it is scratched off
+    var cleared = function () {
+      var px = g.getImageData(0, 0, cv.width, cv.height).data, off = 0, all = 0;
+      for (var i = 3; i < px.length; i += 64) { all++; if (px[i] === 0) off++; }
+      return off / all;
+    };
+    var rub = function (e) {
+      if (!g) return;
+      var r = cv.getBoundingClientRect();
+      g.beginPath(); g.arc(e.clientX - r.left, e.clientY - r.top, 18, 0, Math.PI * 2); g.fill();
+      if (++rubs % 8 === 0 && cleared() > 0.5) clear();
+    };
+    cv.addEventListener("pointerdown", function (e) { down = true; cv.setPointerCapture(e.pointerId); rub(e); });
+    cv.addEventListener("pointermove", function (e) { if (down) rub(e); });
+    cv.addEventListener("pointerup", function () { down = false; });
+    cv.addEventListener("pointercancel", function () { down = false; });
+    cv.onkeydown = function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); clear(); } };
+    return function () {
+      var w = wrap.offsetWidth, h = wrap.offsetHeight, r = window.devicePixelRatio || 1;
+      cv.width = w * r; cv.height = h * r;
+      g = cv.getContext("2d");
+      g.scale(r, r);
+      var silver = g.createLinearGradient(0, 0, w, h);
+      silver.addColorStop(0, "#cbd5e1"); silver.addColorStop(0.5, "#f8fafc"); silver.addColorStop(1, "#94a3b8");
+      g.fillStyle = silver; g.fillRect(0, 0, w, h);
+      g.fillStyle = "#475569"; g.font = "700 16px Segoe UI, sans-serif"; g.textAlign = "center"; g.textBaseline = "middle";
+      g.fillText(t(key || "scratch"), w / 2, h / 2);
+      g.globalCompositeOperation = "destination-out";
+    };
+  }
+  // Jarvis's voice as the gift opens (and again at the message's 🔊); their
+  // own voice instead, when they sent one (Jarvis's if it doesn't load)
+  // (Jarvis turned off and none of their own: nothing speaks, no 🔊)
+  var voice = $("voice"), talks = Boolean(media) || shows("jarvis");
+  var jarvis = shows("jarvis") ? "voices/" + st[5] + (only ? "-wish" : "") + ".mp3?v=" + AUDIO : "";
+  if (media && !video) voice.src = media;
+  else if (jarvis) voice.src = jarvis;
+  voice.onerror = function () { if (jarvis && voice.src.indexOf("voices/") === -1) voice.src = jarvis; };
+  // their video message, played where Jarvis would speak
+  var ownVideo = null;
+  if (video) {
+    ownVideo = el("video", "own-video no-shot");
+    ownVideo.controls = true; ownVideo.playsInline = true; ownVideo.preload = "metadata";
+    ownVideo.onerror = function () { ownVideo.remove(); ownVideo = null; };
+    ownVideo.src = media;
+  }
+  // three crackers, then the big one that opens the gift (ms into the sound;
+  // keep in step with CRACKER_POPS and CRACKER_BANG in festival_gifts.py)
+  var crackers = $("crackers"), POPS = [0, 450, 900], BANG = 1500;
+  crackers.src = "sounds/crackers.mp3?v=" + AUDIO;
+  var bang = function () { crackers.currentTime = 0; crackers.play().catch(function () {}); };
+  var say = function () {
+    if (!talks) return;
+    song.pause();
+    if (ownVideo) { voice.pause(); ownVideo.currentTime = 0; ownVideo.play().catch(function () {}); return; }
+    voice.currentTime = 0; voice.play().catch(function () {});
+  };
+  var again = el("button", "say", "🔊");
+  again.setAttribute("aria-label", "Hear it again");
+  again.onclick = say;
+  var line = function (cls, text) { return el("div", cls, text); };
+  // a page link for a card (the same as the email's): the fragment, base64url JSON
+  var b64url = function (obj) {
+    var s = "";
+    new TextEncoder().encode(JSON.stringify(obj)).forEach(function (b) { s += String.fromCharCode(b); });
+    return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  };
+  // the buttons under a card: 💬 a thank-you on WhatsApp, 💌 one by email,
+  // and a card back to them, made right here
+  // an emoji back on WhatsApp, in a tap
+  var reactions = function () {
+    var row = el("div", "reacts no-shot");
+    ["❤️", "😂", "🥹", "🤗", "🎉"].forEach(function (e) {
+      var b = el("button", "react", e);
+      b.setAttribute("aria-label", "React " + e);
+      b.onclick = function () {
+        b.classList.remove("hit"); void b.offsetWidth; b.classList.add("hit");
+        window.open("https://wa.me/" + phone + "?text=" + encodeURIComponent(e + " " + t("reactBody", { from: from })), "_blank", "noopener");
+      };
+      row.appendChild(b);
+    });
+    return row;
+  };
+  // a little game: catch what falls, for 20 seconds
+  var game = function () {
+    var box = el("div", "game no-shot"), head = el("div", "game-head"), score = 0, left = 20;
+    var count = el("span"), time = el("span"), quit = put(el("button", "gc-btn"), "gameClose");
+    head.appendChild(count); head.appendChild(time); head.appendChild(quit);
+    box.appendChild(head);
+    document.body.appendChild(box);
+    var things = [st[6], st[3], "🎁", "⭐"];
+    var show = function () { put(count, "caught", { n: score }); time.textContent = "⏱ " + left; };
+    show();
+    var drop = setInterval(function () {
+      var b = el("button", "game-thing", things[Math.floor(Math.random() * things.length)]);
+      b.style.left = 5 + Math.random() * 85 + "%";
+      b.style.animationDuration = 2.4 + Math.random() * 1.6 + "s";
+      b.onpointerdown = function () {
+        if (b.disabled) return;
+        b.disabled = true; score++; show(); buzz(20);
+        b.classList.add("got");
+        setTimeout(function () { b.remove(); }, 300);
+      };
+      b.addEventListener("animationend", function () { b.remove(); });
+      box.appendChild(b);
+    }, 450);
+    var stop = function () { clearInterval(clock); clearInterval(drop); box.remove(); };
+    var clock = setInterval(function () {
+      left--; show();
+      if (left > 0) return;
+      clearInterval(clock); clearInterval(drop);
+      var end = el("div", "game-end"), more = put(el("button", "gc-btn"), "playAgain");
+      end.appendChild(put(el("div"), "gameOver", { n: score }));
+      more.onclick = function () { stop(); game(); };
+      end.appendChild(more);
+      box.appendChild(end);
+      confetti(80);
+    }, 1000);
+    quit.onclick = stop;
+  };
+  var replies = function (tools) {
+    if (shows("react")) tools.appendChild(reactions());
+    if (shows("game")) {
+      var play = put(el("button", "gc-btn no-shot"), "game");
+      play.onclick = game;
+      tools.appendChild(play);
+    }
+    if (shows("whatsapp")) {
+      var wa = put(el("a", "gc-btn"), "whatsapp");
+      wa.target = "_blank"; wa.rel = "noopener";
+      wa.onclick = function () { wa.href = "https://wa.me/" + phone + "?text=" + encodeURIComponent(t("thanksBody", { from: from })); };
+      wa.href = "https://wa.me/" + phone;
+      tools.appendChild(wa);
+    }
+    var reply = str(data.r, 120);
+    if (/^[^\s@<>"]+@[^\s@<>"]+\.[^\s@<>"]+$/.test(reply)) {
+      var thanks = put(el("a", "gc-btn"), "thanks");
+      thanks.onclick = function () {
+        thanks.href = "mailto:" + reply + "?subject=" + encodeURIComponent("Re: " + st[4]) +
+          "&body=" + encodeURIComponent(t("thanksBody", { from: from }) + "\n\n");
+      };
+      thanks.href = "mailto:" + reply;
+      tools.appendChild(thanks);
+    }
+    if (!shows("back")) return;
+    var back = put(el("button", "gc-btn"), "back"), panel = null;
+    back.onclick = function () {
+      if (panel) { panel.hidden = !panel.hidden; return; }
+      panel = el("div", "back-card no-shot");
+      var name = el("input"); name.maxLength = 60; name.value = to; name.placeholder = t("backName");
+      name.setAttribute("aria-label", t("backName"));
+      var words = el("textarea"); words.maxLength = 600; words.value = t("backMsg", { greet: greet, to: from ? ", " + from : "" });
+      var link = function () {
+        var card = { f: festival, t: from, n: name.value.trim().slice(0, 60) || to, g: 1, m: words.value.trim().slice(0, 600), l: lang === "hi" ? "hi" : "" };
+        Object.keys(card).forEach(function (k) { if (!card[k]) delete card[k]; });
+        return location.origin + location.pathname + "#" + b64url(card);
+      };
+      var row = el("div", "gc-tools"), go = put(el("button", "gc-btn"), "backSend"), copyLink = put(el("button", "gc-btn"), "backCopy");
+      go.onclick = function () {
+        var url = link(), text = t("backText", { from: name.value.trim() || to });
+        if (navigator.share) navigator.share({ title: st[4], text: text, url: url }).catch(function () {});
+        else window.open("https://wa.me/?text=" + encodeURIComponent(text + "\n" + url), "_blank", "noopener");
+      };
+      copyLink.onclick = function () {
+        (navigator.clipboard ? navigator.clipboard.writeText(link()) : Promise.reject()).then(
+          function () { put(copyLink, "backCopied"); }, function () { put(copyLink, "selcopy"); });
+      };
+      row.appendChild(go); row.appendChild(copyLink);
+      panel.appendChild(name); panel.appendChild(words); panel.appendChild(row);
+      tools.parentNode.insertBefore(panel, tools.nextSibling);
+      name.focus();
+    };
+    tools.appendChild(back);
+  };
+  if (only) {
+    // the greeting card that comes out of the envelope (all the link's text
+    // goes in as text, never as markup)
+    var SHAYARI = {
+      diwali: ["Diyon ki roshni se jagmagaye aapka ghar,\nKhushiyon se bhar jaaye aapka har pehar.",
+               "Ek diya umeed ka, ek diya pyaar ka,\nYeh Diwali laaye tohfa har khushi ke izhaar ka.",
+               "Rangoli ke rang, diyon ki chamak,\nAapki zindagi mein rahe hamesha yeh damak."],
+      christmas: ["Sitaaron si chamke aapki har raat,\nSanta laaye khushiyon ki saugaat.",
+                  "Barf si saaf ho har ghadi aapki,\nPyaar se bhari rahe har khushi aapki."],
+      "new year": ["Naya saal, nayi umeed, naye sapne,\nPoore hon aapke saare armaan apne."],
+      holi: ["Rangon ki bauchhar, gulaal ki phuhaar,\nMubarak ho aapko Holi ka tyohaar."],
+      raksha: ["Resham ki dori, pyaar ka bandhan,\nSalamat rahe yeh rishta har janam."],
+      eid: ["Chaand ki chandni, khushiyon ki baarish,\nPoori ho aapki har ek khwahish."],
+      birthday: ["Phoolon si khile aapki zindagi,\nHar din laaye ek nayi khushi."],
+      ganesh: ["Ganpati aaye aapke dwaar,\nLaaye khushiyan aur sukh apaar."],
+      navratri: ["Maa ki jyot se roshan ho aapka jahaan,\nNau din ki bhakti laaye sukh mahaan."],
+      dussehra: ["Buraai par achhai ki jeet ka tyohaar,\nAapke jeevan mein aaye khushiyan hazaar."],
+      durga: ["Maa Durga ka aashirwad mile,\nHar din aapka phoolon sa khile."],
+      pongal: ["Nayi fasal, naya ujaala,\nKhushiyon se bhara rahe aapka har nivaala."],
+      sankranti: ["Patang si oonchi ho aapki udaan,\nTil-gud sa meetha rahe har armaan."],
+      lohri: ["Lohri ki aag mein jal jaayein saare gham,\nKhushiyon se bhara rahe aapka har kadam."],
+      onam: ["Phoolon ka pookalam, khushiyon ki bahaar,\nMubarak ho aapko Onam ka tyohaar."],
+      karva: ["Chaand ki chandni, pyaar ka vrat,\nSada salamat rahe aapka saath."],
+      anniversary: ["Saath ho yun hi har pal, har saal,\nPyaar rahe aapka hamesha bemisaal."],
+      valentine: ["Dil se dil ki baat ho,\nHar pal pyaar ka saath ho."],
+      baby: ["Nanhe kadmon ki aahat aayi,\nGhar aangan mein khushiyan chhayi."],
+      wedding: ["Do dil mile, do parivaar jude,\nKhushiyon ke rang hamesha ude."],
+      congrat: ["Mehnat ka phal mila hai aaj,\nAise hi chhuo har oonchi parwaaz."],
+      "": ["Khushiyan aapke kadam choomein,\nAapke saare sapne poore hon."]
+    };
+    var style = ["classic", "festive", "royal"].indexOf(data.s) !== -1 ? data.s : "festive";
+    var title = str(data.h, 80) || (data.l === "hi" && HINDI[st[0]] ? HINDI[st[0]] : st[4]) + (to ? ", " + to : "") + (str(data.h, 80) ? "" : "!");
+    // the photo (more than one: one after another)
+    var photos = [str(data.p, 500)].concat(Array.isArray(data.pp) ? data.pp.map(function (p) { return str(p, 500); }) : [])
+      .filter(https).slice(0, 6);
+
+    var book = el("div", "gbook");
+    var m = el("div", "gcard " + style);
+    if (style === "festive") {
+      // the festival's mark, faint, all over the paper
+      var tile = "<svg xmlns='http://www.w3.org/2000/svg' width='72' height='72'><text x='6' y='26' font-size='18' opacity='.12'>" + st[3] +
+        "</text><text x='42' y='62' font-size='18' opacity='.12'>" + st[3] + "</text></svg>";
+      m.style.backgroundImage = 'url("data:image/svg+xml,' + encodeURIComponent(tile) + '"), ' +
+        "radial-gradient(circle at 50% 0, var(--paper), #fffdf7 65%)";
+    }
+    var falling = el("div", "gc-fx");
+    for (var k = 0; k < 10; k++) {
+      var f = el("span", "", st[6]);
+      f.style.left = (k * 29 % 96) + "%";
+      f.style.animationDuration = (7 + k * 3 % 6) + "s";
+      f.style.animationDelay = (-k * 0.9) + "s";
+      if (st[6] === "●") f.style.color = ["#f472b6", "#a3e635", "#facc15", "#38bdf8", "#c084fc"][k % 5];
+      if (party) { f.className = "up"; f.style.filter = "hue-rotate(" + (k * 61 % 360) + "deg)"; }
+      falling.appendChild(f);
+    }
+    m.appendChild(falling);
+    if (photos.length) {
+      var bg = el("div", "gc-bg no-shot");
+      bg.style.backgroundImage = 'url("' + photos[0] + '")';
+      m.insertBefore(bg, falling);
+      var img = el("img", "gc-photo " + (party ? "round" : "wide")); // a birthday's goes down the side (.side)
+      var shown = 0, tinted = false;
+      img.alt = ""; img.referrerPolicy = "no-referrer"; img.crossOrigin = "anonymous";
+      img.onload = function () {
+        img.classList.remove("fading");
+        if (img.crossOrigin && !tinted) { tinted = true; tint(m, img); }
+      };
+      img.onerror = function () {
+        // no CORS there: show it all the same (only "Save" leaves it out)
+        if (img.crossOrigin) { img.removeAttribute("crossorigin"); img.src = photos[shown]; return; }
+        photos.splice(shown, 1); // not there at all
+        if (!photos.length) { (frame || img).remove(); return; }
+        shown %= photos.length;
+        img.src = photos[shown];
+      };
+      img.src = photos[0];
+      // the photo deep in a frame: it shifts behind it as the page leans
+      var frame = null;
+      var deep = shows("frame") && !still();
+      if (deep || shows("scratchpic")) {
+        frame = el("div", img.className + " gc-frame" + (deep ? "" : " plain"));
+        img.className = "gc-in";
+        frame.appendChild(img);
+      }
+      m.appendChild(frame || img);
+      if (frame && shows("scratchpic")) picUp = scratchify(frame, "scratchPic");
+      if (photos.length > 1) {
+        var dots = party ? null : el("div", "gc-dots no-shot");
+        if (dots) { photos.forEach(function () { dots.appendChild(el("i")); }); dots.firstChild.className = "on"; m.appendChild(dots); }
+        setInterval(function () {
+          if (photos.length < 2) return;
+          img.classList.add("fading");
+          setTimeout(function () {
+            shown = (shown + 1) % photos.length;
+            img.src = photos[shown];
+            if (dots) Array.prototype.forEach.call(dots.children, function (d, i) { d.className = i === shown ? "on" : ""; });
+          }, 500);
+        }, 3500);
+      }
+    }
+    // a birthday with a photo: the photo down one side, the rest beside it
+    var into = m;
+    if (party && img) {
+      m.classList.add("side"); book.classList.add("side");
+      into = el("div", "gc-body");
+      m.appendChild(into);
+    }
+    // pop-up: the festival's things stand up off the page as the card opens
+    if (shows("popup") && !still() && st[0] !== "baby") { // a baby's card has its mobile up there instead
+      book.classList.add("popup");
+      var pop = el("div", "gc-pop");
+      [st[6], st[3], st[6]].forEach(function (ch) { pop.appendChild(el("span", "", ch)); });
+      into.appendChild(pop);
+    }
+    var baby = st[0] === "baby";
+    if (party && shows("blow")) into.appendChild(makeCake());
+    else if (!img) into.appendChild(baby ? babyMobile() : line("gc-mark", st[3])); // the photo heads the card instead
+    if (baby) into.appendChild(babyRibbon());
+    var head = line("gc-title", title);
+    if (/[ऀ-ॿ]/.test(title)) head.className += " hi";
+    into.appendChild(head);
+    if (baby) babyClub().forEach(function (e) { into.appendChild(e); });
+    into.appendChild(baby ? babySteps() : line("gc-rule", "— ✦ —"));
+    var text = message || "Wishing you lots of love, light and happiness!";
+    var typed = el("span"), rest = el("span", "rest", text);
+    var msgEl = line("gc-msg", ""); msgEl.setAttribute("aria-label", text);
+    msgEl.appendChild(typed); msgEl.appendChild(rest);
+    into.appendChild(msgEl);
+    if (ownVideo) into.appendChild(ownVideo);
+    if (data.q !== 0) {
+      var pool = SHAYARI[st[0]] || SHAYARI[""];
+      var seed = 0; (to + from).split("").forEach(function (ch) { seed = (seed * 31 + ch.charCodeAt(0)) % 9973; });
+      into.appendChild(line("gc-quote", pool[seed % pool.length]));
+    }
+    // all the photos on a ring, turning in 3D
+    if (photos.length > 1 && shows("ring") && !still()) {
+      var ring = el("div", "gc-ring no-shot"), spin = el("div");
+      var far = Math.max(70, Math.round(52 / Math.tan(Math.PI / photos.length)));
+      photos.forEach(function (src, i) {
+        var p = el("img");
+        p.alt = ""; p.referrerPolicy = "no-referrer";
+        p.style.transform = "rotateY(" + (i * 360 / photos.length) + "deg) translateZ(" + far + "px)";
+        p.onerror = function () { p.remove(); };
+        p.src = src;
+        spin.appendChild(p);
+      });
+      ring.appendChild(spin);
+      into.appendChild(ring);
+    }
+    var sign = line("gc-sign");
+    sign.appendChild(put(el("span"), "love"));
+    sign.appendChild(el("b", "", from));
+    if (SIG) sign.appendChild(signature());
+    if (others.length) {
+      // a group card: the others sign under them
+      var group = el("div", "gc-group");
+      others.forEach(function (n) { group.appendChild(el("b", "", n)); });
+      sign.appendChild(group);
+    }
+    into.appendChild(sign);
+    var notes = stickies();
+    if (notes) into.appendChild(notes);
+    var mine = moment(m);
+    if (mine) into.appendChild(mine);
+
+    // 🔊 again, the card as a picture or a video (to share), a thank-you, a card back
+    var tools = el("div", "gc-tools");
+    if (talks && shows("hear")) {
+      var hear = put(el("button", "gc-btn"), "hear");
+      hear.onclick = say;
+      tools.appendChild(hear);
+    }
+    if (shows("save")) {
+      var share = put(el("button", "gc-btn"), navigator.share ? "share" : "save");
+      share.onclick = function () { saveCard(m, share); };
+      tools.appendChild(share);
+    }
+    if (shows("video")) {
+      var film = put(el("button", "gc-btn"), "video");
+      film.onclick = function () { makeVideo(m, film); };
+      tools.appendChild(film);
+    }
+    replies(tools);
+    if (tools.firstChild) into.appendChild(tools);
+
+    var cover = el("div", "gc-cover");
+    cover.appendChild(line("big", st[3]));
+    cover.appendChild(line("for", "For " + (to || "you")));
+    // flip: a back to the card (the photo, who it's for, who sends it), and it turns over to it
+    var face = m;
+    if (shows("flip") && !still()) {
+      face = el("div", "gc-flip");
+      var back = el("div", "gcard " + style + " gc-back");
+      if (photos.length) {
+        var pic = el("img", "gc-photo round");
+        pic.alt = ""; pic.referrerPolicy = "no-referrer";
+        pic.onerror = function () { pic.replaceWith(line("gc-mark", st[3])); };
+        pic.src = photos[0];
+        back.appendChild(pic);
+      } else back.appendChild(line("gc-mark", st[3]));
+      var forWho = line("gc-title", to || st[4]);
+      if (/[ऀ-ॿ]/.test(to)) forWho.className += " hi";
+      back.appendChild(forWho);
+      back.appendChild(line("gc-rule", "— ✦ —"));
+      back.appendChild(put(line("gc-msg"), "backNote"));
+      var sign2 = line("gc-sign");
+      sign2.appendChild(put(el("span"), "love"));
+      sign2.appendChild(el("b", "", from));
+      if (SIG) sign2.appendChild(signature());
+      if (others.length) sign2.appendChild(group.cloneNode(true));
+      back.appendChild(sign2);
+      var turn = function () { face.classList.toggle("over"); };
+      var backTools = el("div", "gc-tools");
+      var front = put(el("button", "gc-btn"), "flipBack");
+      front.onclick = turn;
+      backTools.appendChild(front);
+      back.appendChild(backTools);
+      var over = put(el("button", "gc-btn"), "flip");
+      over.onclick = turn;
+      tools.appendChild(over);
+      if (!tools.parentNode) into.appendChild(tools);
+      face.appendChild(m); face.appendChild(back);
+    }
+    book.appendChild(face); book.appendChild(cover);
+    tilt3d(book);
+    $("msg").appendChild(book);
+  } else {
+    if (message) {
+      var m = el("div", "msg");
+      if (talks) m.appendChild(again);
+      m.appendChild(document.createTextNode(message));
+      $("msg").appendChild(m);
+    }
+    if (ownVideo) $("msg").appendChild(ownVideo);
+    // under the voucher: the festival's moment, then 🔊 again and the replies
+    // (no picture or video of it: the claim code would be in it)
+    var mine = moment($("card"));
+    if (mine) $("voucher").appendChild(mine);
+    var tools = el("div", "gc-tools");
+    if (talks && shows("hear")) {
+      var hear = put(el("button", "gc-btn"), "hear");
+      hear.onclick = say;
+      tools.appendChild(hear);
+    }
+    replies(tools);
+    if (tools.firstChild) $("voucher").appendChild(tools);
+  }
+  // the card opens like a book, its message types itself out
+  var openBook = function () {
+    setTimeout(function () { book.classList.add("open"); }, still() ? 0 : 500);
+    var i = 0, all = rest.textContent;
+    if (still()) { typed.textContent = all; rest.textContent = ""; return; }
+    setTimeout(function tick() {
+      i = Math.min(all.length, i + 1);
+      typed.textContent = all.slice(0, i); rest.textContent = all.slice(i);
+      if (i < all.length) setTimeout(tick, 35);
+    }, 1400);
+  };
+  // the card as a picture (html2canvas, loaded the first time it's wanted)
+  var shot = function (card) {
+    var ready = window.html2canvas ? Promise.resolve() : new Promise(function (ok, no) {
+      var js = el("script");
+      js.src = "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js";
+      js.onload = ok; js.onerror = no;
+      document.head.appendChild(js);
+    });
+    return ready.then(function () {
+      document.body.classList.add("flat"); // not leaning in the picture
+      return window.html2canvas(card, { scale: 2, useCORS: true, backgroundColor: null,
+        ignoreElements: function (e) {
+          return e.classList && (e.classList.contains("gc-tools") || e.classList.contains("gc-fx") || e.classList.contains("no-shot"));
+        }
+      });
+    }).finally(function () { document.body.classList.remove("flat"); });
+  };
+  var fileName = function (ext) { return (st[0] || "greeting").replace(/\W+/g, "-") + "-card." + ext; };
+  // a file shared where the phone can (WhatsApp …), else saved
+  var give = function (blob, name, type) {
+    var file = window.File && new File([blob], name, { type: type });
+    if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
+      navigator.share({ files: [file], title: st[4] }).catch(function () {});
+    } else {
+      var a = el("a"); a.href = URL.createObjectURL(blob); a.download = name;
+      document.body.appendChild(a); a.click(); a.remove();
+    }
+  };
+  var saveCard = function (card, btn) {
+    shot(card).then(function (canvas) {
+      canvas.toBlob(function (blob) { give(blob, fileName("png"), "image/png"); });
+    }).catch(function () { put(btn, "failed"); });
+  };
+  // the card as a short video: the picture of it zooming in over the
+  // festival's colours, its snow / sparkles falling, with its tune
+  var makeVideo = function (card, btn) {
+    var kinds = ["video/mp4;codecs=avc1", "video/mp4", "video/webm;codecs=vp9,opus", "video/webm"];
+    var kind = window.MediaRecorder && kinds.filter(function (x) { return MediaRecorder.isTypeSupported(x); })[0];
+    if (!kind || !HTMLCanvasElement.prototype.captureStream) { put(btn, "failed"); return; }
+    btn.disabled = true;
+    put(btn, "making");
+    var done = function (key) { btn.disabled = false; put(btn, key); };
+    shot(card).then(function (pic) {
+      var W = 720, cw = W - 80, ch = Math.round(cw * pic.height / pic.width), H = ch + 160;
+      H += H % 2;
+      var cv = el("canvas"); cv.width = W; cv.height = H;
+      var g = cv.getContext("2d"), stream = cv.captureStream(30);
+      var Ctx = window.AudioContext || window.webkitAudioContext, ac = Ctx ? new Ctx() : null;
+      var sound = tune ? "songs/" + tune + ".mp3?v=" + AUDIO : "sounds/crackers.mp3?v=" + AUDIO;
+      var withSound = !ac ? Promise.resolve(null) : fetch(sound).then(function (r) { return r.arrayBuffer(); }).then(function (b) {
+        return new Promise(function (ok, no) { ac.decodeAudioData(b, ok, no); });
+      }).then(function (buf) {
+        var src = ac.createBufferSource(), out = ac.createMediaStreamDestination();
+        src.buffer = buf; src.connect(out);
+        stream.addTrack(out.stream.getAudioTracks()[0]);
+        return src;
+      }).catch(function () { return null; });
+      return withSound.then(function (src) {
+        var rec = new MediaRecorder(stream, { mimeType: kind }), parts = [], LEN = 8000;
+        rec.ondataavailable = function (e) { if (e.data.size) parts.push(e.data); };
+        rec.onstop = function () {
+          if (ac) ac.close();
+          give(new Blob(parts, { type: kind }), fileName(kind.indexOf("mp4") !== -1 ? "mp4" : "webm"), kind.split(";")[0]);
+          done("video");
+        };
+        var flakes = [];
+        for (var i = 0; i < 30; i++) flakes.push({ x: Math.random() * W, y: Math.random() * H, v: 1 + Math.random() * 2.5 });
+        var t0 = performance.now();
+        rec.start();
+        if (src) src.start(0);
+        (function draw(now) {
+          var p = Math.min(1, (now - t0) / LEN), ease = 1 - Math.pow(1 - Math.min(1, p / 0.25), 3);
+          var bgd = g.createLinearGradient(0, 0, W, H);
+          bgd.addColorStop(0, st[1]); bgd.addColorStop(1, st[2]);
+          g.fillStyle = bgd; g.fillRect(0, 0, W, H);
+          g.font = "22px serif"; g.fillStyle = "rgba(255,255,255,.8)"; g.globalAlpha = 1;
+          flakes.forEach(function (f) { f.y = (f.y + f.v) % (H + 30); g.fillText(st[6], f.x, f.y); });
+          var z = 0.8 + 0.2 * ease + 0.03 * Math.max(0, p - 0.25);
+          g.save(); g.globalAlpha = ease; g.translate(W / 2, H / 2); g.scale(z, z);
+          g.drawImage(pic, -cw / 2, -ch / 2, cw, ch); g.restore();
+          if (p > 0.3) {
+            // sparkles round the card, twinkling
+            g.font = "28px serif";
+            for (var s = 0; s < 6; s++) {
+              g.globalAlpha = Math.max(0, Math.sin(now / 300 + s * 1.7));
+              g.fillText("✨", (s * 131 % (W - 40)) + 10, s % 2 ? 50 : H - 20);
+            }
+            g.globalAlpha = 1;
+          }
+          if (p < 1) requestAnimationFrame(draw); else rec.stop();
+        })(t0);
+      });
+    }).catch(function () { done("failed"); });
+  };
+  if (m) {
+    voice.onplay = function () { m.classList.add("saying"); };
+    voice.onpause = voice.onended = function () { m.classList.remove("saying"); };
+  }
+
+  // the festival's own moment, under the card: light the diyas, throw
+  // colour, tie the rakhi, deck the tree, a countdown, spot the moon.
+  // `card`: what Holi's colours land on
+  // ---- a new baby's card (babyFor, babyName: set with the card's other fields)
+  // over the title: a mobile (moon, stars, clouds swaying on strings) and the baby in a glow
+  function babyMobile() {
+    var box = el("div", "bmobile"), bits = ["🌙", "⭐", "☁️", "⭐", "🧸"];
+    box.appendChild(el("div", "bar"));
+    bits.forEach(function (b, i) {
+      var h = el("div", "hang"), len = [34, 54, 26, 54, 34][i];
+      h.style.left = 26 + i * 44 + "px"; h.style.height = len + "px"; h.style.animationDelay = -i * 0.6 + "s";
+      h.appendChild(el("span", "", b));
+      box.appendChild(h);
+    });
+    box.appendChild(el("div", "face", "👶"));
+    return box;
+  }
+  function babyRibbon() {
+    var wrap = el("div");
+    wrap.appendChild(put(el("span", "bribbon"), data.bg === "boy" ? "babyBoy" : data.bg === "girl" ? "babyGirl" : "babyHere"));
+    return wrap;
+  }
+  // under the title: the papa club, the baby's name
+  function babyClub() {
+    var out = [put(el("div", "bclub"), { dad: "clubDad", mom: "clubMom", both: "clubBoth" }[babyFor])];
+    if (babyName) out.push(put(el("div", "bname"), "babyWelcome", { name: babyName }));
+    return out;
+  }
+  // in place of the — ✦ — line: little footsteps walking across
+  function babySteps() {
+    var row = el("div", "bsteps");
+    for (var i = 0; i < 6; i++) { var f = el("span", "", "👣"); f.style.animationDelay = i * 0.35 + "s"; row.appendChild(f); }
+    return row;
+  }
+  // under the cartoon: a promotion letter, "promoted to Papa", stamped APPROVED as it comes into view
+  function babyCert() {
+    var c = el("div", "cert");
+    c.appendChild(put(el("h4"), "certHead"));
+    c.appendChild(put(el("div", "who"), "certWho", { to: function () { return to || t("certYou"); } }));
+    c.appendChild(put(el("div", "role"), { dad: "roleDad", mom: "roleMom", both: "roleBoth" }[babyFor]));
+    var dl = el("dl");
+    [["certSalary", "certSalaryV"], ["certShift", "certShiftV"], ["certPerks", "certPerksV"], ["certBoss", "certBossV"]].forEach(function (row) {
+      dl.appendChild(put(el("dt"), row[0]));
+      dl.appendChild(put(el("dd"), row[1], { name: function () { return babyName || t("certBaby"); } }));
+    });
+    c.appendChild(dl);
+    c.appendChild(put(el("div", "by"), "certBy", { from: from }));
+    c.appendChild(put(el("div", "stamp"), "certStamp"));
+    var stamp = function () { if (!c.classList.contains("stamped")) { c.classList.add("stamped"); setTimeout(function () { buzz([40, 30, 90]); }, 420); } };
+    if ("IntersectionObserver" in window) {
+      new IntersectionObserver(function (es, o) { if (es[0].isIntersecting) { o.disconnect(); setTimeout(stamp, 500); } }, { threshold: 0.7 }).observe(c);
+    } else stamp();
+    return c;
+  }
+  function moment(card) {
+    var k = st[0], box = el("div", "moment"), hint = el("div", "hint no-shot");
+    var done = function (key) { put(hint, key); buzz([60, 40, 60]); confetti(80); };
+    if (k === "diwali") {
+      var row = el("div", "row"), lit = 0;
+      for (var i = 0; i < 5; i++) {
+        var d = el("button", "diya", "🪔");
+        d.setAttribute("aria-label", "Diya " + (i + 1));
+        d.onclick = function () {
+          if (this.classList.contains("lit")) return;
+          this.classList.add("lit");
+          buzz(30);
+          if (++lit === 5) { done("diyaDone"); bang(); }
+        };
+        row.appendChild(d);
+      }
+      var spark = put(el("button", "gc-btn no-shot"), "sparkler");
+      spark.onclick = sparkler;
+      var more = el("div", "gc-tools no-shot"); more.appendChild(spark);
+      box.appendChild(row); box.appendChild(put(hint, "diyaHint")); box.appendChild(more);
+      return box;
+    }
+    if (k === "holi") {
+      var layer = el("div", "gc-layer"), splashes = 0, last = 0;
+      var colours = ["#f472b6", "#a3e635", "#facc15", "#38bdf8", "#c084fc", "#fb923c"];
+      card.appendChild(layer);
+      card.classList.add("paintable");
+      var splash = function (e) {
+        if (!$("voucher").classList.contains("in")) return; // not before it's out
+        if (e.target.closest && e.target.closest("button, a, input, textarea, video, canvas")) return;
+        var r = card.getBoundingClientRect(), size = 50 + Math.random() * 90, c = colours[splashes % colours.length];
+        var blot = el("i");
+        blot.style.left = e.clientX - r.left + "px"; blot.style.top = e.clientY - r.top + "px";
+        blot.style.width = blot.style.height = size + "px";
+        blot.style.background = "radial-gradient(circle, " + c + " 0 45%, transparent 70%)";
+        layer.appendChild(blot);
+        if (layer.children.length > 80) layer.firstChild.remove();
+        if (++splashes === 8) done("holiDone"); else buzz(20);
+      };
+      card.addEventListener("pointerdown", splash);
+      card.addEventListener("pointermove", function (e) {
+        if (e.buttons && Date.now() - last > 90) { last = Date.now(); splash(e); }
+      });
+      box.appendChild(put(hint, "holiHint"));
+      return box;
+    }
+    if (k === "raksha") {
+      var stage = el("div", "tie"), hand = el("div", "hand", "🤚"), rakhi = el("button", "rakhi", "🪢");
+      var sx = 0, sy = 0, dragging = false;
+      rakhi.setAttribute("aria-label", "Rakhi");
+      stage.appendChild(hand); stage.appendChild(rakhi);
+      var tie = function () {
+        if (rakhi.classList.contains("tied")) return;
+        var s = stage.getBoundingClientRect(), h = hand.getBoundingClientRect();
+        rakhi.classList.add("tied");
+        rakhi.style.transform = "";
+        rakhi.style.left = (h.left - s.left + h.width / 2 - rakhi.offsetWidth / 2) + "px";
+        rakhi.style.top = (h.top - s.top + h.height * 0.7 - rakhi.offsetHeight / 2) + "px";
+        done("rakhiDone");
+      };
+      rakhi.addEventListener("pointerdown", function (e) {
+        if (rakhi.classList.contains("tied")) return;
+        dragging = true; sx = e.clientX; sy = e.clientY;
+        rakhi.setPointerCapture(e.pointerId);
+        rakhi.classList.add("drag");
+      });
+      rakhi.addEventListener("pointermove", function (e) {
+        if (dragging) rakhi.style.transform = "translate(" + (e.clientX - sx) + "px, " + (e.clientY - sy) + "px)";
+      });
+      var drop = function () {
+        if (!dragging) return;
+        dragging = false;
+        rakhi.classList.remove("drag");
+        var a = rakhi.getBoundingClientRect(), b = hand.getBoundingClientRect();
+        if (a.right > b.left && a.left < b.right && a.bottom > b.top && a.top < b.bottom) tie();
+        else rakhi.style.transform = "";
+      };
+      rakhi.addEventListener("pointerup", drop);
+      rakhi.addEventListener("pointercancel", drop);
+      rakhi.onkeydown = function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); tie(); } };
+      box.appendChild(stage); box.appendChild(put(hint, "rakhiHint"));
+      return box;
+    }
+    if (k === "christmas") {
+      var tree = el("button", "tree", "🎄"), deco = ["🔴", "🟡", "🔵", "🎀", "🟣", "🔔"], placed = 0;
+      tree.setAttribute("aria-label", "Christmas tree");
+      tree.onclick = function () {
+        if (placed >= deco.length) return;
+        // somewhere on the tree: it's narrow at the top
+        var y = 30 + Math.random() * 52, half = Math.min(36, (y - 10) * 0.45);
+        var o = el("i", "", deco[placed]);
+        o.style.top = y + "%"; o.style.left = 50 + (Math.random() * 2 - 1) * half + "%";
+        tree.appendChild(o);
+        buzz(20);
+        if (++placed === deco.length) {
+          var star = el("i", "star", "⭐");
+          star.style.top = "8%"; star.style.left = "50%";
+          tree.appendChild(star);
+          done("treeDone");
+        }
+      };
+      var snow = put(el("button", "gc-btn no-shot"), "snow");
+      snow.onclick = storm;
+      var more = el("div", "gc-tools no-shot"); more.appendChild(snow);
+      box.appendChild(tree); box.appendChild(put(hint, "treeHint"));
+      box.appendChild(more);
+      return box;
+    }
+    if (k === "new year") {
+      var sky = el("div", "night"), go = put(el("button", "gc-btn no-shot"), "nyBtn");
+      var burst = function (x, y) {
+        var colours = ["#f472b6", "#facc15", "#38bdf8", "#a3e635", "#c084fc", "#fb923c"], c = colours[Math.floor(Math.random() * 6)];
+        for (var i = 0; i < 22; i++) {
+          var a = i / 22 * Math.PI * 2, far = 40 + Math.random() * 30, dot = el("i", "fw");
+          dot.style.left = x + "px"; dot.style.top = y + "px"; dot.style.color = c;
+          dot.style.setProperty("--dx", Math.round(Math.cos(a) * far) + "px");
+          dot.style.setProperty("--dy", Math.round(Math.sin(a) * far) + "px");
+          sky.appendChild(dot);
+          setTimeout(dot.remove.bind(dot), 1200);
+        }
+        buzz(30);
+      };
+      sky.onclick = function (e) { var r = sky.getBoundingClientRect(); burst(e.clientX - r.left, e.clientY - r.top); };
+      var count = function (text, big) {
+        var c = el("div", "count", text);
+        if (!big) { c.style.fontSize = "44px"; c.style.animationDuration = "2.4s"; }
+        document.body.appendChild(c);
+        setTimeout(function () { c.remove(); }, big ? 1000 : 2400);
+      };
+      go.onclick = function () {
+        go.disabled = true;
+        [3, 2, 1].forEach(function (n, i) { setTimeout(function () { count(String(n), true); buzz(50); }, i * 1000); });
+        setTimeout(function () {
+          count(t("nyNow"));
+          bang();
+          for (var j = 0; j < 8; j++) {
+            setTimeout(function () { burst(30 + Math.random() * (sky.clientWidth - 60), 30 + Math.random() * (sky.clientHeight - 60)); }, j * 350);
+          }
+          done("nyHint");
+          go.disabled = false;
+        }, 3000);
+      };
+      var more = el("div", "gc-tools no-shot"); more.appendChild(go);
+      box.appendChild(sky); box.appendChild(hint); box.appendChild(more);
+      return box;
+    }
+    if (k === "baby") {
+      var room = el("div", "nursery");
+      room.appendChild(el("div", "sun", "☀️"));
+      [[8, 18, "0s"], [30, 46, "-9s"]].forEach(function (c) {
+        var cl = el("div", "cl", "☁️"); cl.style.top = c[0] + "px"; cl.style.left = "0"; cl.style.animationDelay = c[2]; room.appendChild(cl);
+      });
+      room.appendChild(el("div", "crib", "🛏️"));
+      var bird = el("div", "bird"), wing = el("span", "wing", "🕊️"), bundle = el("span", "bundle", "👶");
+      bird.appendChild(wing); bird.appendChild(bundle);
+      var kid = el("button", "kid", "👶"), bottle = el("div", "bottle", "🍼"), say = el("div", "nap-say"); // not .say: the page has one of its own
+      kid.setAttribute("aria-label", "Baby");
+      room.appendChild(bird); room.appendChild(bottle); room.appendChild(kid); room.appendChild(say);
+      var timers = [], at = function (ms, fn) { timers.push(setTimeout(fn, ms)); };
+      var talk = function (text, big, ms) {
+        say.textContent = text; say.classList.toggle("big", Boolean(big)); say.classList.add("on");
+        clearTimeout(say._t); say._t = setTimeout(function () { say.classList.remove("on"); }, ms || 1600);
+      };
+      var bubbles = function (n, chars) {
+        for (var i = 0; i < n; i++) {
+          var b = el("span", "bub", chars[i % chars.length]);
+          b.style.left = 40 + Math.random() * 20 + "%"; b.style.setProperty("--bx", Math.round(Math.random() * 80 - 40) + "px");
+          b.style.animationDelay = i * 0.08 + "s"; room.appendChild(b);
+          setTimeout(b.remove.bind(b), 2200);
+        }
+      };
+      var wiggle = function (cls) { kid.classList.remove("wiggle", "drink"); void kid.offsetWidth; kid.classList.add(cls || "wiggle"); };
+      // its funny lines, in the page's language (a list: not through t())
+      var lines = function () { return T[lang].babyLines || T.en.babyLines; }, said = 0, tickles = 0;
+      var feed = function () {
+        bottle.style.opacity = 1; bottle.style.left = "56%";
+        at(1300, function () { wiggle("drink"); talk("glug glug… 🍼", false, 2000); });
+        at(3400, function () { bottle.style.opacity = 0; bottle.style.left = "-15%"; talk(t("babyBurp"), true, 1800); buzz([80, 40, 120]); bubbles(10, ["💨", "✨", "🫧"]); });
+      };
+      // the cartoon: in flies the bird, down goes the baby, milk, a burp, a sneeze
+      var play = function () {
+        timers.forEach(clearTimeout); timers = [];
+        kid.classList.remove("on", "wiggle", "drink"); say.classList.remove("on");
+        bundle.style.opacity = 1; bird.style.transition = "none"; bird.style.left = "110%"; bird.style.top = "18px"; void bird.offsetWidth;
+        bird.style.transition = "";
+        if (still()) { bundle.style.opacity = 0; kid.classList.add("on"); talk(lines()[0], false, 2500); return; }
+        at(100, function () { bird.style.left = "42%"; bird.style.top = "30px"; });
+        at(2600, function () { bundle.style.opacity = 0; kid.classList.add("on"); buzz(30); });
+        at(3000, function () { bird.style.left = "-30%"; bird.style.top = "-10px"; talk(lines()[0], false, 1800); wiggle(); });
+        at(5000, feed);
+        at(9200, function () { talk(t("babySneeze"), true, 1600); wiggle(); bubbles(12, ["🫧", "🫧", "✨"]); });
+        at(11200, function () { confetti(60); talk("🎉 " + st[4] + "! 🎉", false, 2200); });
+      };
+      kid.onclick = function () {
+        wiggle(); buzz(25);
+        var all = lines();
+        talk(all[1 + said++ % (all.length - 1)]);
+        bubbles(4, ["💙", "💗", "⭐"]);
+        if (++tickles === 3) done("babyDone");
+      };
+      var tools = el("div", "gc-tools no-shot");
+      var again = put(el("button", "gc-btn no-shot"), "babyPlay"); again.onclick = play;
+      var milk = put(el("button", "gc-btn no-shot"), "babyFeed"); milk.onclick = function () { if (kid.classList.contains("on")) feed(); };
+      var tickle = put(el("button", "gc-btn no-shot"), "babyTickle"); tickle.onclick = function () { if (kid.classList.contains("on")) kid.onclick(); };
+      tools.appendChild(again); tools.appendChild(milk); tools.appendChild(tickle);
+      box.appendChild(room); box.appendChild(put(hint, "babyHint")); box.appendChild(tools);
+      box.appendChild(babyCert());
+      // starts once it's on screen (the card opens first)
+      var seen = false, start = function () { if (!seen) { seen = true; play(); } };
+      if ("IntersectionObserver" in window) {
+        new IntersectionObserver(function (es, o) { if (es[0].isIntersecting) { o.disconnect(); start(); } }, { threshold: 0.5 }).observe(room);
+      } else setTimeout(start, 800);
+      return box;
+    }
+    if (k === "eid") {
+      var night = el("div", "night"), left = 3;
+      night.appendChild(el("div", "moon", "🌙"));
+      [[12, 20], [80, 26], [24, 78], [70, 72], [50, 14]].forEach(function (p) {
+        var s = el("span", "tw", "✦"); s.style.left = p[0] + "%"; s.style.top = p[1] + "%"; night.appendChild(s);
+      });
+      [[42, 42, "-260%"], [58, 56, "260%"], [50, 32, "-260%"]].forEach(function (p) {
+        var cloud = el("button", "cloud", "☁️");
+        cloud.setAttribute("aria-label", "Cloud");
+        cloud.style.left = p[0] + "%"; cloud.style.top = p[1] + "%"; cloud.style.transform = "translate(-50%, -50%)";
+        cloud.onclick = function () {
+          if (cloud.classList.contains("gone")) return;
+          cloud.classList.add("gone");
+          cloud.style.transform = "translate(" + p[2] + ", -50%)";
+          buzz(20);
+          if (--left === 0) { night.classList.add("seen"); done("eidDone"); }
+        };
+        night.appendChild(cloud);
+      });
+      night.appendChild(put(el("div", "eidi"), only ? "eidSeen" : "eidi"));
+      box.appendChild(night); box.appendChild(put(hint, "eidHint"));
+      return box;
+    }
+    return null;
+  }
+  // Diwali: a sparkler, drawn with a finger over the page
+  function sparkler() {
+    if (document.querySelector(".sparkler")) return;
+    var cv = el("canvas", "sparkler"), r = window.devicePixelRatio || 1, W = innerWidth, H = innerHeight;
+    cv.width = W * r; cv.height = H * r;
+    var g = cv.getContext("2d"), trail = [], bits = [], live = true;
+    g.scale(r, r);
+    var add = function (e, start) {
+      trail.push({ x: e.clientX, y: e.clientY, life: 1, start: start });
+      for (var i = 0; i < 6; i++) {
+        var a = Math.random() * Math.PI * 2, s = 1 + Math.random() * 3;
+        bits.push({ x: e.clientX, y: e.clientY, vx: Math.cos(a) * s, vy: Math.sin(a) * s, life: 1, hue: 35 + Math.random() * 25 });
+      }
+    };
+    cv.addEventListener("pointerdown", function (e) { cv.setPointerCapture(e.pointerId); add(e, true); bang(); buzz(30); });
+    cv.addEventListener("pointermove", function (e) { if (e.buttons) add(e, false); });
+    (function frame() {
+      if (!live) return;
+      g.clearRect(0, 0, W, H);
+      g.lineCap = "round"; g.lineWidth = 4; g.shadowBlur = 12; g.shadowColor = "#fbbf24";
+      for (var i = 1; i < trail.length; i++) {
+        if (trail[i].start) continue; // a new stroke
+        g.strokeStyle = "rgba(255,214,102," + trail[i].life + ")";
+        g.beginPath(); g.moveTo(trail[i - 1].x, trail[i - 1].y); g.lineTo(trail[i].x, trail[i].y); g.stroke();
+      }
+      g.shadowBlur = 0;
+      trail.forEach(function (p) { p.life -= 0.006; });
+      trail = trail.filter(function (p) { return p.life > 0; });
+      bits.forEach(function (b) {
+        b.x += b.vx; b.y += b.vy; b.vy += 0.08; b.life -= 0.03;
+        g.fillStyle = "hsla(" + b.hue + ",100%,65%," + b.life + ")";
+        g.fillRect(b.x, b.y, 2, 2);
+      });
+      bits = bits.filter(function (b) { return b.life > 0; });
+      requestAnimationFrame(frame);
+    })();
+    var stop = put(el("button", "gc-btn sparkler-done"), "sparklerDone");
+    stop.onclick = function () { live = false; cv.remove(); stop.remove(); };
+    document.body.appendChild(cv);
+    document.body.appendChild(stop);
+  }
+  // Christmas: a snowstorm (the button)
+  function storm() {
+    if (still()) return;
+    var layer = el("div", "storm");
+    layer.setAttribute("aria-hidden", "true");
+    for (var i = 0; i < 60; i++) {
+      var s = el("span", "", st[6]);
+      s.style.left = Math.random() * 100 + "%";
+      s.style.fontSize = 10 + Math.random() * 16 + "px";
+      s.style.animationDuration = 1.5 + Math.random() * 2 + "s";
+      s.style.animationDelay = Math.random() + "s";
+      layer.appendChild(s);
+    }
+    document.body.appendChild(layer);
+    buzz(80);
+    setTimeout(function () { layer.remove(); }, 5000);
+  }
+
+  // falling snow / sparkles
+  var fx = $("fx");
+  // in depth: three layers, far (small, soft) to near (big)
+  var layers = shows("depth") && !still() ? [0, 1, 2].map(function (d) { return fx.appendChild(el("div", "fx-layer d" + d)); }) : null;
+  for (var i = 0; i < 26; i++) {
+    var s = el("span", "", st[6]);
+    s.style.left = (i * 37 % 100) + "%";
+    s.style.fontSize = (10 + (i * 7) % 14) + "px";
+    s.style.animationDuration = (6 + (i * 13) % 9) + "s";
+    s.style.animationDelay = (-(i * 0.7)) + "s";
+    if (st[6] === "●") s.style.color = ["#f472b6", "#a3e635", "#facc15", "#38bdf8", "#c084fc"][i % 5];
+    if (party) {
+      s.className = "up";
+      s.style.fontSize = (18 + (i * 7) % 18) + "px";
+      s.style.filter = "hue-rotate(" + (i * 47 % 360) + "deg)";
+    }
+    if (layers) {
+      var d = i % 3;
+      s.style.fontSize = parseFloat(s.style.fontSize) * [0.6, 1, 1.6][d] + "px";
+      s.style.animationDuration = parseFloat(s.style.animationDuration) * [1.5, 1, 0.75][d] + "s";
+      layers[d].appendChild(s);
+    } else fx.appendChild(s);
+  }
+
+  var song = $("song"), music = $("music");
+  if (tune) song.src = "songs/" + tune + ".mp3?v=" + AUDIO;
+  var setMusic = function (on) { music.classList.toggle("on", on); music.textContent = on ? "🔊" : "🔈"; };
+  song.onplay = function () { setMusic(true); };
+  song.onpause = function () { setMusic(false); };
+  music.onclick = function () {
+    if (song.paused) { song.play().catch(function () {}); return; }
+    song.pause();
+    songDone(); // the song was turned off: don't keep the gift waiting on it
+  };
+
+  // the gift (amount, claim code) comes only after the song and the voice.
+  // While they play, Santa (or diyas / balloons / colours / the moon / rakhis)
+  // crosses the card once, as far along as the song is; once it's over he
+  // comes back to the card's middle. Then, like a film: the lights dim, the camera closes in on him, he
+  // takes the gift out and hands it over, flies off, and the gift bursts open
+  // into the voucher
+  var opened = false, done = false, delivered = false;
+  var card = $("card"), sky = null, santa = null, at_p = 0;
+  // the photo's own colour for the card's frame, title, buttons and cake,
+  // where the photo's site lets the page read it (CORS); else the festival's
+  function tint(card, img) {
+    try {
+      var c = document.createElement("canvas"); c.width = c.height = 24;
+      var g = c.getContext("2d"); g.drawImage(img, 0, 0, 24, 24);
+      var px = g.getImageData(0, 0, 24, 24).data, sum = [0, 0, 0], n = 0;
+      for (var i = 0; i < px.length; i += 4) {
+        var hi = Math.max(px[i], px[i + 1], px[i + 2]), lo = Math.min(px[i], px[i + 1], px[i + 2]);
+        if (hi < 30 || lo > 225 || hi - lo < 25) continue; // not black, white or grey
+        sum[0] += px[i]; sum[1] += px[i + 1]; sum[2] += px[i + 2]; n++;
+      }
+      if (n < 20) return;
+      var hex = "#" + sum.map(function (v) { return ("0" + Math.round(v / n).toString(16)).slice(-2); }).join("");
+      var light = function (h) { return (0.2126 * parseInt(h.slice(1, 3), 16) + 0.7152 * parseInt(h.slice(3, 5), 16) + 0.0722 * parseInt(h.slice(5, 7), 16)) / 255; };
+      for (var k = 0; k < 8 && light(hex) > 0.35; k++) hex = mix(hex, "#000000", 0.8); // dark enough to read on the paper
+      card.style.setProperty("--c1", hex);
+      [["--c1-35", .35], ["--c1-40", .4], ["--c1-50", .5], ["--c1-60", .6]].forEach(function (v) {
+        card.style.setProperty(v[0], mix(hex, "#ffffff", v[1]));
+      });
+    } catch (e) { /* the photo's site doesn't allow it */ }
+  }
+  // confetti all over the page
+  function confetti(n) {
+    if (still()) return;
+    var layer = document.createElement("div"); layer.className = "confetti"; layer.setAttribute("aria-hidden", "true");
+    var tumble = shows("confetti3d");
+    if (tumble) layer.className += " c3d";
+    var colours = ["#f472b6", "#facc15", "#38bdf8", "#a3e635", "#c084fc", "#fb923c", "#f87171"];
+    for (var k = 0; k < n; k++) {
+      var c = document.createElement("i");
+      c.style.left = Math.random() * 100 + "%";
+      c.style.background = colours[k % colours.length];
+      c.style.animationDuration = 2.2 + Math.random() * 2 + "s";
+      c.style.animationDelay = Math.random() * 0.8 + "s";
+      c.style.setProperty("--sway", Math.round(Math.random() * 160 - 80) + "px");
+      c.style.setProperty("--spin", Math.round(Math.random() * 1080 - 540) + "deg");
+      if (k % 3 === 0) { c.style.width = "10px"; c.style.height = "10px"; c.style.borderRadius = "50%"; }
+      if (tumble) {
+        c.style.setProperty("--rx", Math.round(360 + Math.random() * 1080) + "deg");
+        c.style.setProperty("--ry", Math.round(360 + Math.random() * 1080) + "deg");
+        c.style.scale = (0.55 + Math.random() * 0.95).toFixed(2); // near or far
+      }
+      layer.appendChild(c);
+    }
+    document.body.appendChild(layer);
+    setTimeout(function () { layer.remove(); }, 5500);
+  }
+  // the birthday cake: its candles lit till they blow them out with the
+  // button (then the song again, and more confetti)
+  function makeCake() {
+    var wrap = el("div", "cake-wrap");
+    var cake = el("div", "cake"); cake.setAttribute("aria-hidden", "true");
+    cake.innerHTML = '<div class="plate"></div><div class="tier bottom"></div><div class="tier top"></div><div class="candles">' +
+      '<span class="candle"><i class="flame"></i><span class="smoke">💨</span></span>' +
+      '<span class="candle"><i class="flame"></i><span class="smoke">💨</span></span>' +
+      '<span class="candle"><i class="flame"></i><span class="smoke">💨</span></span></div>';
+    var blow = put(el("button", "gc-btn no-shot"), "blow");
+    var hint = put(el("div", "wish-now no-shot"), "wish");
+    var blowOut = function () {
+      if (cake.classList.contains("out")) return;
+      cake.classList.add("out");
+      blow.disabled = true;
+      put(blow, "hbd");
+      put(hint, "wishDone");
+      confetti(140);
+      buzz(150);
+      clearTimeout(sayLater); // the song, not Jarvis, now
+      voice.pause();
+      // the birthday song, once they're out (its own switch: on even with the opening tune off)
+      if (shows("blowsong") && st[5]) {
+        if (!tune) song.src = "songs/" + st[5] + ".mp3?v=" + AUDIO;
+        music.classList.add("shown"); // so it can be stopped
+        song.currentTime = 0; song.play().catch(function () {});
+      }
+    };
+    blow.onclick = blowOut;
+    // or blow into the mic: a loud enough breath puts them out
+    var mic = null, Ctx = window.AudioContext || window.webkitAudioContext;
+    if (shows("micblow") && Ctx && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      mic = put(el("button", "gc-btn no-shot"), "micBlow");
+      mic.onclick = function () {
+        if (cake.classList.contains("out")) return;
+        mic.disabled = true;
+        navigator.mediaDevices.getUserMedia({ audio: true }).then(function (stream) {
+          put(hint, "micNow");
+          var ac = new Ctx(), an = ac.createAnalyser();
+          an.fftSize = 512;
+          ac.createMediaStreamSource(stream).connect(an);
+          var buf = new Uint8Array(an.fftSize), loud = 0, until = Date.now() + 20000;
+          var stop = function () { stream.getTracks().forEach(function (tr) { tr.stop(); }); ac.close(); };
+          (function listen() {
+            if (cake.classList.contains("out")) { stop(); return; }
+            if (Date.now() > until) { stop(); mic.disabled = false; put(hint, "wish"); return; }
+            an.getByteTimeDomainData(buf);
+            var sum = 0;
+            for (var i = 0; i < buf.length; i++) { var d = (buf[i] - 128) / 128; sum += d * d; }
+            loud = Math.sqrt(sum / buf.length) > 0.18 ? loud + 1 : 0;
+            if (loud > 5) { stop(); blowOut(); return; } // a breath, not a click
+            requestAnimationFrame(listen);
+          })();
+        }, function () { put(mic, "micNo"); });
+      };
+    }
+    var row = el("div", "gc-tools no-shot");
+    row.appendChild(blow);
+    if (mic) row.appendChild(mic);
+    wrap.appendChild(cake); wrap.appendChild(hint); wrap.appendChild(row);
+    return wrap;
+  }
+  if (party && !only && shows("blow")) $("voucher").insertBefore(makeCake(), $("voucher").firstChild);
+  // ask (never on its own) whether to tell them it's been opened: a WhatsApp message, if they say yes
+  var askSeen = function () {
+    var ask = el("div", "seen no-shot"), row = el("div", "gc-tools");
+    var yes = put(el("button", "gc-btn"), "seenYes"), no = put(el("button", "gc-btn"), "seenNo");
+    ask.appendChild(put(el("div"), "seenAsk", { from: from }));
+    yes.onclick = function () {
+      window.open("https://wa.me/" + phone + "?text=" + encodeURIComponent(t("seenBody", { from: from })), "_blank", "noopener");
+      ask.remove();
+    };
+    no.onclick = function () { ask.remove(); };
+    row.appendChild(yes); row.appendChild(no); ask.appendChild(row);
+    document.body.appendChild(ask);
+  };
+  var sayLater = 0;
+  var reveal = function () {
+    $("wait").hidden = true;
+    var v = $("voucher");
+    v.hidden = false;
+    requestAnimationFrame(function () { requestAnimationFrame(function () {
+      v.classList.add("in");
+      if (scratchUp) scratchUp();
+      if (picUp) picUp();
+    }); });
+    setTimeout(function () { v.scrollIntoView({ behavior: "smooth", block: "center" }); }, 300);
+    sayLater = setTimeout(say, 1400); // once the crackle's done
+    if (only) openBook();
+    else tilt3d($("card"));
+    if (shows("seen")) setTimeout(askSeen, 5000);
+    if (party) confetti(120);
+  };
+  // who brings it (Santa unless the festival has its own): the gift comes out of .sled
+  var lead = function (a, b, sled) { return '<span class="lead">' + a + '</span><span class="lead">' + b + '</span><span class="sled">' + sled + '</span>'; };
+  var who = {
+    diwali: [lead("✨", "🪔", "🪔"), "Happy Diwali! 🎁"],
+    birthday: [lead("🎈", "🎈", "🎈"), "Happy Birthday! 🎁"],
+    holi: [lead("💦", "🎨", "🎨"), "Happy Holi! 🎁"],
+    eid: [lead("✨", "⭐", "🌙"), "Eid Mubarak! 🎁"],
+    raksha: [lead("✨", "🪢", "🪢"), "Happy Raksha Bandhan! 🎁"],
+    ganesh: [lead("🌺", "🌺", "🐘"), "Ganpati Bappa Morya! 🎁"],
+    navratri: [lead("✨", "🪔", "💃"), "Happy Navratri! 🎁"],
+    dussehra: [lead("🔥", "🏹", "🏹"), "Happy Dussehra! 🎁"],
+    durga: [lead("🌺", "✨", "🔱"), "Happy Durga Puja! 🎁"],
+    pongal: [lead("🌾", "🐄", "🍯"), "Happy Pongal! 🎁"],
+    sankranti: [lead("🪁", "🪁", "🪁"), "Happy Sankranti! 🎁"],
+    lohri: [lead("🔥", "✨", "🔥"), "Happy Lohri! 🎁"],
+    onam: [lead("🌼", "🌸", "🛶"), "Happy Onam! 🎁"],
+    karva: [lead("✨", "⭐", "🌕"), "Happy Karva Chauth! 🎁"],
+    anniversary: [lead("💞", "💕", "💐"), "Happy Anniversary! 🎁"],
+    valentine: [lead("💘", "💕", "🌹"), "Happy Valentine's Day! 🎁"],
+    baby: [lead("🎈", "🍼", "🧸<b>👶</b>"), "Congratulations! 🎁"],
+    wedding: [lead("🌸", "💐", "💍"), "Happy Married Life! 🎁"],
+    congrat: [lead("🎊", "✨", "🏆"), "Congratulations! 🎁"]
+  }[st[0]] || [lead("🦌", "🦌", "🛷<b>🎅</b>"), "Ho ho ho! 🎁"];
+  who[1] = who[1].replace("🎁", gem);
+  // where he is: p 0 just off the card's right edge, 1 in its middle, 2 off
+  // its left edge; z how close the camera is
+  var place = function (p, z) {
+    at_p = p;
+    var w = card.clientWidth, fw = santa.offsetWidth;
+    santa.style.transform = "translate(" + Math.round(w - p * (w + fw) / 2) + "px, -50%)" + (z ? " scale(" + z + ")" : "");
+  };
+  // in step with the song, till it's done
+  var follow = function () {
+    if (done) return;
+    var d = song.duration;
+    if (d && isFinite(d)) place(Math.min(2, 2 * song.currentTime / d));
+    requestAnimationFrame(follow);
+  };
+  // the card is up: the sky over it, and Santa on his way
+  var startSky = function () {
+    if (still()) return;
+    sky = document.createElement("div"); sky.className = "sky"; sky.setAttribute("aria-hidden", "true");
+    sky.innerHTML = '<div class="dim"></div>';
+    card.appendChild(sky);
+    if (only) return; // a greeting card's envelope needs no one to bring it
+    santa = document.createElement("div"); santa.className = "sleigh";
+    santa.innerHTML = '<span class="ride">' + who[0] + '</span><span class="ho">' + who[1] + '</span>';
+    sky.appendChild(santa);
+    place(0);
+    follow();
+  };
+  var at = function (el) {
+    var c = card.getBoundingClientRect(), r = el.getBoundingClientRect();
+    return { x: r.left - c.left + r.width / 2, y: r.top - c.top + r.height / 2 };
+  };
+  var after = function (ms, fn) { setTimeout(fn, ms); };
+  // the scene, from Santa in the card's middle
+  var handOver = function () {
+    var dim = sky.querySelector(".dim");
+    dim.classList.add("on");
+    place(1, 1.8); // the camera closes in
+    after(1300, function () {
+      // out of the sack, up above him, glowing
+      var from = at(santa.querySelector(".sled"));
+      var box = document.createElement("div"); box.className = "drop hid";
+      if (only) box.innerHTML = ENV;
+      else if (CUBE) box.innerHTML = CUBE;
+      else box.textContent = gem;
+      box.style.left = from.x + "px"; box.style.top = from.y + "px";
+      sky.insertBefore(box, santa);
+      put(santa.querySelector(".ho"), "here", { gem: gem });
+      void box.offsetWidth; // from there, not from where it ends up
+      box.classList.remove("hid");
+      box.style.top = (from.y - 70) + "px"; box.style.fontSize = "52px";
+      after(1700, function () {
+        // handed over; he's off
+        santa.classList.add("quiet");
+        place(2, 1);
+        present(box, dim);
+      });
+    });
+  };
+  // the gift (or the envelope) where it'll open, close to you, glowing: three
+  // crackers go off, then the big one opens it
+  var present = function (box, dim) {
+    var to = at($("wait"));
+    var rays = document.createElement("div"); rays.className = "rays";
+    rays.style.left = to.x + "px"; rays.style.top = to.y + "px";
+    sky.appendChild(box); // in front of everything
+    sky.insertBefore(rays, box);
+    box.style.left = to.x + "px"; box.style.top = to.y + "px"; box.style.fontSize = "96px";
+    after(400, function () { rays.classList.add("on"); });
+    var sparks = function (chars, far) {
+      chars.forEach(function (ch, i) {
+        var sp = document.createElement("span"); sp.className = "spark"; sp.textContent = ch;
+        var a = (i + Math.random() * 0.5) / chars.length * Math.PI * 2;
+        sp.style.left = to.x + "px"; sp.style.top = to.y + "px";
+        sp.style.setProperty("--dx", Math.round(Math.cos(a) * far) + "px");
+        sp.style.setProperty("--dy", Math.round(Math.sin(a) * far) + "px");
+        sky.appendChild(sp);
+      });
+    };
+    // it's there: three crackers go off, then the big one opens it
+    after(1200, function () {
+      dim.classList.remove("on");
+      bang();
+      POPS.forEach(function (ms, k) {
+        after(ms, function () {
+          box.classList.remove("jolt"); void box.offsetWidth; box.classList.add("jolt");
+          sparks(["💥", "✨", "🎇", "✨", "💥", "✨"].slice(0, 3 + k), 45 + 20 * k);
+          buzz(40);
+        });
+      });
+      after(BANG, function () {
+        box.classList.remove("jolt");
+        rays.classList.remove("on");
+        sparks(["💥", "🎉", "⭐", "✨", "🎆", "🎊", "⭐", "✨", "🎇", "🎉"], 140);
+        buzz([80, 40, 200]);
+        if (!only) {
+          box.classList.add("burst");
+          reveal();
+          return;
+        }
+        // the envelope opens, the card comes out of it
+        box.querySelector(".env").classList.add("open");
+        after(1100, function () { box.classList.add("away"); reveal(); });
+      });
+      var end = BANG + (only ? 2300 : 1200);
+      after(end, function () { sky.classList.add("out"); });
+      after(end + 600, function () { sky.remove(); });
+    });
+  };
+  var deliver = function () {
+    if (delivered) return;
+    delivered = true;
+    if (!sky) { reveal(); return; }
+    if (only) {
+      // a greeting card: no one flies it in, the envelope's just there
+      var dim = sky.querySelector(".dim");
+      dim.classList.add("on");
+      var to = at($("wait"));
+      var box = document.createElement("div"); box.className = "drop hid"; box.innerHTML = ENV;
+      box.style.left = to.x + "px"; box.style.top = to.y + "px";
+      sky.appendChild(box);
+      void box.offsetWidth; // from nothing, where it is
+      box.classList.remove("hid");
+      present(box, dim);
+      return;
+    }
+    // off the card if he isn't yet, back in from the right to its middle, then the scene
+    santa.classList.add("glide");
+    if (at_p <= 0) { // not on his way yet (no tune): straight in
+      place(1);
+      after(1400, handOver);
+      return;
+    }
+    var gone = at_p >= 1.95 ? 0 : 1200;
+    place(2);
+    after(gone, function () {
+      santa.classList.remove("glide");
+      place(0);
+      void santa.offsetWidth; // from there, not from the left
+      santa.classList.add("glide");
+      place(1);
+      after(1400, handOver);
+    });
+  };
+  var maybeDeliver = function () { if (opened && done) setTimeout(deliver, 900); };
+  var songDone = function () { if (done) return; done = true; maybeDeliver(); };
+  song.addEventListener("ended", songDone);
+  song.addEventListener("error", songDone);
+  if (!tune || only) done = true; // a greeting card doesn't wait on the tune: it plays under the scene
+
+  // no tap yet, so no sound: a tap anywhere brings it (the tune too, if
+  // Santa hasn't set off without it)
+  var fallback = 0;
+  var askSound = function () {
+    if (document.querySelector(".sound")) return;
+    var chip = put(el("button", "sound"), "sound");
+    document.body.appendChild(chip);
+    var go = function () {
+      chip.remove();
+      document.removeEventListener("pointerdown", go, true);
+      document.removeEventListener("keydown", go, true);
+      if (tune && (only ? $("voucher").hidden : !done)) song.play().then(function () { clearTimeout(fallback); }, function () {});
+    };
+    document.addEventListener("pointerdown", go, true);
+    document.addEventListener("keydown", go, true);
+  };
+
+  var open = function () {
+    if (opened) return;
+    opened = true;
+    if (tune) {
+      song.play().catch(function () {
+        if (only) askSound();
+        fallback = setTimeout(songDone, only ? 6000 : 2500); // a moment to tap for the tune
+      });
+      setTimeout(songDone, 90000); // a song that never finishes loading
+    }
+    maybeDeliver();
+    var gift = $("gift");
+    gift.classList.add("opening");
+    setTimeout(function () {
+      gift.classList.add("gone");
+      card.classList.add("shown");
+      requestAnimationFrame(function () { requestAnimationFrame(function () { card.classList.add("in"); }); });
+      if (tune) music.classList.add("shown");
+      startSky();
+    }, 550);
+  };
+  $("gift").onclick = open;
+  $("gift").onkeydown = function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } };
+
+  var start = function () {
+    if (only) {
+      // a greeting card opens by itself: the email's "Open your card" was the tap
+      $("gift").classList.add("gone");
+      open();
+      if (!tune && !(navigator.userActivation && navigator.userActivation.hasBeenActive)) askSound();
+    } else {
+      // where the browser lets a page play sound by itself, the gift opens with
+      // the music right away; else it waits for the tap
+      var tried = tune && song.play();
+      if (tried && tried.then) tried.then(function () { setTimeout(open, 900); }, function () {});
+    }
+  };
+  // a card for a day still to come stays locked till then (midnight, their time)
+  var day = /^(\d{4})-(\d{2})-(\d{2})$/.exec(str(data.d, 10));
+  var unlock = day && new Date(+day[1], day[2] - 1, +day[3]);
+  if (unlock && unlock > new Date()) {
+    $("gift").hidden = true;
+    $("lock").hidden = false;
+    if (shows("flipclock") && !still()) $("lock").classList.add("flip3d");
+    put($("lockTitle"), only ? "lockCard" : "lockGift");
+    put($("lockWhen"), "opensOn", { date: function () {
+      return unlock.toLocaleDateString(lang === "hi" ? "hi-IN" : "en-IN", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+    } });
+    var cells = ["days", "hrs", "mins", "secs"].map(function (key) {
+      var c = el("span"), n = el("b", "", "0");
+      c.appendChild(n); c.appendChild(put(el("small"), key));
+      $("lockLeft").appendChild(c);
+      return n;
+    });
+    var tick = function () {
+      var ms = unlock - new Date();
+      if (ms <= 0) {
+        clearInterval(timer);
+        $("lock").hidden = true;
+        $("gift").hidden = false;
+        start();
+        return;
+      }
+      var sec = Math.floor(ms / 1000);
+      [Math.floor(sec / 86400), Math.floor(sec / 3600) % 24, Math.floor(sec / 60) % 60, sec % 60].forEach(function (v, i) {
+        var now = String(i ? ("0" + v).slice(-2) : v);
+        if (cells[i].textContent === now) return;
+        cells[i].textContent = now;
+        cells[i].classList.remove("turn"); void cells[i].offsetWidth; cells[i].classList.add("turn");
+      });
+    };
+    var timer = setInterval(tick, 1000);
+    tick();
+  } else {
+    start();
+  }
+  applyLang();
+})();
+</script>
+</body>
+</html>

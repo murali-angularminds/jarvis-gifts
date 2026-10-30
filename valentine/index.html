@@ -18,6 +18,7 @@
   m message, g 1 for a greeting card with no gift in it, and the greeting
   card's own: h title, l "hi" for a Hindi one, s style, p photo (big, down
   the side on a birthday; the card takes its colour), pp more photos (one after another; on a gift card too, under its message), q 0 for no shayari,
+  on a new baby's card: bp who it's for (dad / mom / both), bg boy / girl, bn the baby's name,
   and on either kind: r the sender's email for a reply, w their WhatsApp number, o others who sign it,
   x the buttons on the card turned off (hear, save, video, whatsapp, back, and blow: a birthday's
   cake; jarvis: Jarvis's voice, none then unless their own; song: the festival's tune, the
@@ -443,6 +444,76 @@
   .moment .hint { margin-top: 6px; font: 600 13px "Segoe UI", sans-serif; color: var(--c1); }
   .royal .moment .hint { color: #f5d06f; }
   .moment .row { display: flex; justify-content: center; gap: 10px; margin-top: 8px; flex-wrap: wrap; }
+  /* a new baby's card: a mobile over it, a ribbon, little footsteps, a promotion letter for the new papa */
+  .bmobile { position: relative; width: 230px; height: 150px; margin: 0 auto 4px; }
+  .bmobile .bar { position: absolute; left: 20px; right: 20px; top: 8px; height: 4px; border-radius: 4px; background: linear-gradient(90deg, #fcd34d, #fde68a, #fcd34d); box-shadow: 0 2px 6px rgba(0,0,0,.12); }
+  .bmobile .bar::before { content: ""; position: absolute; left: 50%; top: -10px; width: 2px; height: 10px; background: #fcd34d; }
+  .bmobile .hang { position: absolute; top: 12px; width: 2px; transform-origin: top center; background: rgba(148,163,184,.7); animation: b-sway 3.2s ease-in-out infinite; }
+  .bmobile .hang span { position: absolute; left: 50%; bottom: -26px; transform: translateX(-50%); font-size: 24px; line-height: 1; filter: drop-shadow(0 2px 3px rgba(0,0,0,.15)); }
+  .bmobile .face { position: absolute; left: 50%; bottom: 0; width: 76px; height: 76px; margin-left: -38px; border-radius: 50%; display: grid; place-items: center; font-size: 48px;
+    background: radial-gradient(circle, #fff 55%, color-mix(in srgb, var(--c2) 30%, #fff)); box-shadow: 0 0 0 4px #fff, 0 0 0 7px color-mix(in srgb, var(--c1) 45%, #fff), 0 10px 28px color-mix(in srgb, var(--c1) 40%, transparent);
+    animation: b-bob 2.6s ease-in-out infinite; }
+  .bmobile .face::after { content: ""; position: absolute; inset: -10px; border-radius: 50%; border: 2px solid color-mix(in srgb, var(--c2) 60%, #fff); animation: b-ring 2.6s ease-out infinite; }
+  @keyframes b-sway { 0%, 100% { transform: rotate(-7deg); } 50% { transform: rotate(7deg); } }
+  @keyframes b-bob { 50% { transform: translateY(-5px) rotate(-3deg); } }
+  @keyframes b-ring { from { transform: scale(.9); opacity: .9; } to { transform: scale(1.35); opacity: 0; } }
+  .bribbon { position: relative; display: inline-block; margin: 6px auto 2px; padding: 7px 26px; color: #fff; font: 800 15px "Segoe UI", sans-serif; letter-spacing: .5px;
+    background: linear-gradient(90deg, var(--c1), var(--c2)); box-shadow: 0 6px 16px color-mix(in srgb, var(--c1) 35%, transparent);
+    clip-path: polygon(0 0, 100% 0, 94% 50%, 100% 100%, 0 100%, 6% 50%); animation: b-pop .7s cubic-bezier(.3,1.7,.5,1) both .3s; }
+  .bclub { margin-top: 6px; font: 700 12px "Segoe UI", sans-serif; letter-spacing: 2px; text-transform: uppercase; color: var(--c1); opacity: .85; }
+  .bname { margin-top: 2px; font: 400 30px "Great Vibes", cursive; color: var(--c2); }
+  .bsteps { display: flex; justify-content: center; gap: 14px; margin: 10px 0 6px; font-size: 18px; }
+  .bsteps span { opacity: 0; animation: b-step 3.6s ease-in-out infinite; }
+  .bsteps span:nth-child(odd) { transform: rotate(-14deg) translateY(4px); }
+  .bsteps span:nth-child(even) { transform: rotate(14deg) translateY(-4px); }
+  @keyframes b-step { 0%, 8% { opacity: 0; } 18%, 70% { opacity: .75; } 85%, 100% { opacity: 0; } }
+  @keyframes b-pop { from { transform: scale(.2); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  .cert { position: relative; margin: 16px auto 4px; max-width: 380px; padding: 18px 18px 54px; text-align: center; border-radius: 10px; color: #3f2d12;
+    background: repeating-linear-gradient(45deg, rgba(251,191,36,.05) 0 10px, transparent 10px 20px), #fffbeb;
+    border: 2px solid #d97706; box-shadow: inset 0 0 0 5px #fffbeb, inset 0 0 0 6px rgba(217,119,6,.5), 0 10px 24px rgba(146,64,14,.15); }
+  .cert h4 { margin: 0 0 6px; font: 800 12px "Segoe UI", sans-serif; letter-spacing: 3px; color: #b45309; }
+  .cert .who { font: 600 13px Georgia, serif; }
+  .cert .role { margin: 4px 0 10px; font: 400 40px/1.1 "Great Vibes", cursive; color: var(--c1); }
+  .cert dl { display: grid; grid-template-columns: auto 1fr; gap: 4px 10px; margin: 0 auto; max-width: 300px; text-align: left; font: 13px Georgia, serif; }
+  .cert dt { font-weight: 700; color: #92400e; white-space: nowrap; }
+  .cert dd { margin: 0; }
+  .cert .by { margin-top: 10px; font: italic 12px Georgia, serif; opacity: .8; }
+  .cert .stamp { position: absolute; right: 14px; bottom: 12px; padding: 4px 10px; border: 3px double #16a34a; border-radius: 8px; color: #16a34a;
+    font: 900 15px "Segoe UI", sans-serif; letter-spacing: 1px; transform: rotate(-14deg) scale(3); opacity: 0; background: rgba(255,255,255,.6); }
+  .cert.stamped .stamp { animation: b-stamp .45s cubic-bezier(.5,0,.75,0) forwards; }
+  @keyframes b-stamp { to { transform: rotate(-14deg) scale(1); opacity: .9; } }
+  @media (prefers-reduced-motion: reduce) {
+    .bmobile .hang, .bmobile .face, .bmobile .face::after, .bsteps span, .bribbon { animation: none; opacity: 1; }
+    .cert .stamp { transform: rotate(-14deg); opacity: .9; }
+  }
+  /* a new baby: a little cartoon (a bird brings the baby, milk, a burp, a sneeze), and the baby to tap */
+  .nursery { position: relative; height: 210px; margin-top: 6px; border-radius: 18px; overflow: hidden;
+    background: linear-gradient(#bae6fd, #fbcfe8 78%, #fde68a 78.5%, #fcd34d); box-shadow: inset 0 -6px 0 rgba(0,0,0,.05); }
+  .nursery .sun { position: absolute; right: 16px; top: 12px; font-size: 30px; animation: nap-sun 6s ease-in-out infinite; }
+  .nursery .cl { position: absolute; font-size: 30px; opacity: .9; animation: nap-cloud 18s linear infinite; }
+  .nursery .crib { position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); font-size: 62px; line-height: 1; }
+  .nursery .bird { position: absolute; top: 18px; left: 110%; font-size: 40px; line-height: 1; text-align: center; transition: left 2.4s ease-in-out, top 2.4s ease-in-out; }
+  .nursery .bird .wing { display: inline-block; transform: scaleX(-1); animation: nap-flap .25s ease-in-out infinite alternate; }
+  .nursery .bird .bundle { display: block; font-size: 30px; margin-top: -6px; transition: opacity .3s; }
+  .nursery .kid { position: absolute; left: 50%; bottom: 46px; font-size: 46px; line-height: 1; border: 0; background: none; padding: 0; cursor: pointer;
+    transform: translateX(-50%) scale(0); transition: transform .5s cubic-bezier(.3,1.8,.5,1); }
+  .nursery .kid.on { transform: translateX(-50%) scale(1); }
+  .nursery .kid.wiggle { animation: nap-wiggle .5s ease-in-out 2; }
+  .nursery .kid.drink { animation: nap-gulp .35s ease-in-out 6; }
+  .nursery .bottle { position: absolute; left: -15%; bottom: 70px; font-size: 32px; transform: rotate(-35deg); transition: left 1.2s ease-out, opacity .4s; }
+  .nursery .nap-say { position: absolute; left: 50%; bottom: 112px; transform: translateX(-50%) scale(.3); opacity: 0; white-space: nowrap;
+    padding: 6px 12px; border-radius: 16px; background: #fff; color: #0f172a; font: 800 15px "Segoe UI", sans-serif; box-shadow: 0 4px 14px rgba(0,0,0,.15);
+    transition: transform .3s cubic-bezier(.3,1.8,.5,1), opacity .25s; pointer-events: none; }
+  .nursery .nap-say::after { content: ""; position: absolute; left: 50%; bottom: -7px; margin-left: -7px; border: 7px solid transparent; border-bottom: 0; border-top-color: #fff; }
+  .nursery .nap-say.on { transform: translateX(-50%) scale(1); opacity: 1; }
+  .nursery .nap-say.big { font-size: 26px; color: #db2777; letter-spacing: 1px; }
+  .nursery .bub { position: absolute; bottom: 60px; font-size: 18px; animation: nap-bubble 1.6s ease-out forwards; pointer-events: none; }
+  @keyframes nap-flap { to { transform: scaleX(-1) translateY(-6px) rotate(-12deg); } }
+  @keyframes nap-wiggle { 0%, 100% { transform: translateX(-50%) rotate(0); } 25% { transform: translateX(-50%) rotate(-14deg); } 75% { transform: translateX(-50%) rotate(14deg); } }
+  @keyframes nap-gulp { 50% { transform: translateX(-50%) scale(1.08, .92); } }
+  @keyframes nap-bubble { to { transform: translate(var(--bx, 0), -120px) scale(1.4); opacity: 0; } }
+  @keyframes nap-sun { 50% { transform: rotate(12deg) scale(1.08); } }
+  @keyframes nap-cloud { from { transform: translateX(-120px); } to { transform: translateX(480px); } }
   .diya { position: relative; font-size: 38px; line-height: 1; border: 0; background: none; padding: 14px 2px 0; cursor: pointer; filter: grayscale(1) brightness(.7); transition: filter .4s; }
   .diya::before { content: ""; position: absolute; left: 50%; top: 4px; width: 10px; height: 16px; margin-left: -5px; border-radius: 50% 50% 45% 45%;
                   background: radial-gradient(circle at 50% 70%, #fff7c2, #fbbf24 45%, #f97316 80%); box-shadow: 0 0 14px 6px rgba(251,191,36,.55);
@@ -577,14 +648,20 @@
     ["onam", "#a16207", "#15803d", "🌼", "Happy Onam", "festival", "🌼"],
     ["karva", "#be123c", "#a16207", "🌕", "Happy Karva Chauth", "festival", "✨"],
     ["anniversary", "#be123c", "#7c3aed", "💞", "Happy Anniversary", "festival", "❤"],
-    ["valentine", "#e11d48", "#be185d", "❤️", "Happy Valentine's Day", "festival", "❤"]
+    ["valentine", "#e11d48", "#be185d", "❤️", "Happy Valentine's Day", "festival", "❤"],
+    // congratulations, any day: a new baby, a wedding, a new job / result / home …
+    // "baby": its own lullaby and Jarvis's voice (songs/baby.mp3, voices/baby(-wish).mp3)
+    ["baby", "#0284c7", "#db2777", "👶", "Congratulations", "baby", "🧸"],
+    ["wedding", "#be123c", "#a16207", "💍", "Happy Married Life", "festival", "🌸"],
+    ["congrat", "#7c3aed", "#0e7490", "🎉", "Congratulations", "festival", "🎊"]
   ];
   var HINDI = { christmas: "क्रिसमस की शुभकामनाएँ", "new year": "नव वर्ष की शुभकामनाएँ", diwali: "शुभ दीपावली",
     holi: "होली की शुभकामनाएँ", raksha: "रक्षाबंधन की शुभकामनाएँ", eid: "ईद मुबारक", birthday: "जन्मदिन की शुभकामनाएँ",
     ganesh: "गणपति बाप्पा मोरया", navratri: "नवरात्रि की शुभकामनाएँ", dussehra: "दशहरा की शुभकामनाएँ",
     durga: "दुर्गा पूजा की शुभकामनाएँ", pongal: "पोंगल की शुभकामनाएँ", sankranti: "मकर संक्रांति की शुभकामनाएँ",
     lohri: "लोहड़ी की लख-लख बधाइयाँ", onam: "ओणम की शुभकामनाएँ", karva: "करवा चौथ की शुभकामनाएँ",
-    anniversary: "सालगिरह मुबारक", valentine: "वैलेंटाइन डे मुबारक" };
+    anniversary: "सालगिरह मुबारक", valentine: "वैलेंटाइन डे मुबारक",
+    baby: "नन्हे मेहमान की बहुत-बहुत बधाई", wedding: "शादी की हार्दिक शुभकामनाएँ", congrat: "बहुत-बहुत बधाई" };
   var $ = function (id) { return document.getElementById(id); };
   // bump when songs/ or voices/ change, so no browser plays the old ones from its cache
   var AUDIO = 4;
@@ -620,6 +697,17 @@
       rakhiHint: "Drag the rakhi to the wrist 🪢", rakhiDone: "Rakhi tied! A bond forever 💞",
       treeHint: "Tap the tree to decorate it 🎄", treeDone: "Beautiful! Merry Christmas ⭐", snow: "❄ Let it snow",
       nyBtn: "🎆 Start the countdown", nyHint: "Tap the sky for more fireworks 🎇", nyNow: "Happy New Year! 🎉",
+      babyBoy: "It's a Boy! 💙", babyGirl: "It's a Girl! 💗", babyHere: "The little one is here! 🤍", babyWelcome: "Welcome, little {name}",
+      clubDad: "Welcome to the Papa Club 👨‍🍼", clubMom: "Welcome to the Mummy Club 👩‍🍼", clubBoth: "Welcome to the Parents Club 👪",
+      certHead: "🎖️ OFFICIAL PROMOTION LETTER", certWho: "This is to certify that {to} has been promoted to", certYou: "you have",
+      roleDad: "Papa", roleMom: "Mummy", roleBoth: "Mummy & Papa",
+      certSalary: "Salary", certSalaryV: "Unlimited hugs & giggles 🤗", certShift: "Working hours", certShiftV: "24 × 7, no Sunday off 😅",
+      certPerks: "Perks", certPerksV: "Tiny hands, big love 💙", certBoss: "New boss", certBossV: "{name} 👶", certBaby: "The baby",
+      certBy: "Signed with love, {from} & the whole family 💐", certStamp: "APPROVED ✅",
+      babyHint: "Tap the baby for a giggle 👶", babyDone: "So cute! Congratulations 💙", babyPlay: "🎬 Play again",
+      babyFeed: "🍼 Feed", babyTickle: "🤭 Tickle", babyBurp: "BURRP! 😆", babySneeze: "Aaa-chhoo! 🤧",
+      babyLines: ["I'm here! 😎", "Milk first, talk later 🍼", "Diaper check, please 🙈", "Hi everyone! 👋", "Hehehe 🤭",
+        "Who's this? 🧐", "Sleep? Never! 😜", "I'm the boss now 👑"],
       eidHint: "Tap the clouds to spot the moon 🌙", eidDone: "Eid Mubarak! 🌙", eidi: "💰 Here's your Eidi!", eidSeen: "🌙 Chaand Mubarak!",
       back: "💌 Send them a card", backName: "Your name", backMsg: "{greet}{to}! 💌\nThank you for the lovely card.",
       backSend: "📤 Send", backCopy: "📋 Copy link", backCopied: "Link copied ✓", backText: "{from} sent you a card 💌"
@@ -652,6 +740,17 @@
       rakhiHint: "राखी को कलाई तक खींचो 🪢", rakhiDone: "राखी बँध गई! यह बंधन सदा रहे 💞",
       treeHint: "पेड़ सजाने के लिए उस पर टैप करो 🎄", treeDone: "वाह! मेरी क्रिसमस ⭐", snow: "❄ बर्फ़ गिराओ",
       nyBtn: "🎆 काउंटडाउन शुरू करो", nyHint: "और पटाखों के लिए आसमान पर टैप करो 🎇", nyNow: "नया साल मुबारक! 🎉",
+      babyBoy: "बेटा हुआ है! 💙", babyGirl: "बेटी हुई है! 💗", babyHere: "नन्हा मेहमान आ गया! 🤍", babyWelcome: "स्वागत है, नन्हे {name}",
+      clubDad: "पापा क्लब में स्वागत है 👨‍🍼", clubMom: "मम्मी क्लब में स्वागत है 👩‍🍼", clubBoth: "मम्मी-पापा क्लब में स्वागत है 👪",
+      certHead: "🎖️ आधिकारिक प्रमोशन लेटर", certWho: "प्रमाणित किया जाता है कि {to} को प्रमोशन मिला है:", certYou: "आप",
+      roleDad: "पापा", roleMom: "मम्मी", roleBoth: "मम्मी-पापा",
+      certSalary: "सैलरी", certSalaryV: "अनलिमिटेड झप्पियाँ और किलकारियाँ 🤗", certShift: "ड्यूटी", certShiftV: "24 × 7, संडे की छुट्टी नहीं 😅",
+      certPerks: "फ़ायदे", certPerksV: "नन्हे हाथ, ढेर सारा प्यार 💙", certBoss: "नया बॉस", certBossV: "{name} 👶", certBaby: "बेबी",
+      certBy: "ढेर सारे प्यार से, {from} और पूरा परिवार 💐", certStamp: "मंज़ूर ✅",
+      babyHint: "हँसाने के लिए बेबी पर टैप करो 👶", babyDone: "कितना प्यारा! बहुत-बहुत बधाई 💙", babyPlay: "🎬 फिर से देखो",
+      babyFeed: "🍼 दूध पिलाओ", babyTickle: "🤭 गुदगुदी", babyBurp: "डकार! 😆", babySneeze: "आ-छीं! 🤧",
+      babyLines: ["मैं आ गया! 😎", "पहले दूध, फिर बात 🍼", "डायपर चेक करो 🙈", "सबको हाय! 👋", "हीहीही 🤭",
+        "ये कौन है? 🧐", "सोना? कभी नहीं! 😜", "अब घर का बॉस मैं हूँ 👑"],
       eidHint: "चाँद देखने के लिए बादलों पर टैप करो 🌙", eidDone: "ईद मुबारक! 🌙", eidi: "💰 ये रही आपकी ईदी!", eidSeen: "🌙 चाँद मुबारक!",
       back: "💌 इन्हें भी कार्ड भेजो", backName: "आपका नाम", backMsg: "{greet}{to}! 💌\nप्यारे कार्ड के लिए बहुत-बहुत शुक्रिया।",
       backSend: "📤 भेजो", backCopy: "📋 लिंक कॉपी", backCopied: "लिंक कॉपी हो गया ✓", backText: "{from} ने आपको कार्ड भेजा है 💌"
@@ -820,6 +919,9 @@
     }
   }
   var festival = str(data.f, 60), to = str(data.t, 60), from = str(data.n, 60) || "A friend";
+  // a new baby's card: bp its papa / mummy / both, bg a boy / girl (its colours), bn the baby's name
+  var babyFor = ["dad", "mom", "both"].indexOf(data.bp) !== -1 ? data.bp : "dad";
+  var babyName = str(data.bn, 40);
   var amount = Number(data.a) || 0, code = str(data.c, 30).replace(/[^A-Za-z0-9-]/g, "").toUpperCase(), message = str(data.m, 600);
   // others who sign it with them (a group card)
   var oms = Array.isArray(data.om) ? data.om : [];
@@ -883,6 +985,12 @@
   var low = festival.toLowerCase();
   var st = STYLES.filter(function (s) { return low.indexOf(s[0]) !== -1; })[0] ||
     ["", "#4338ca", "#0e7490", "🎉", festival ? "Happy " + festival : "A gift for you", "festival", "✨"];
+  // a new baby: a boy's card blue, a girl's pink (bg), both when it's a surprise
+  if (st[0] === "baby" && (data.bg === "boy" || data.bg === "girl")) {
+    st = st.slice();
+    st[1] = data.bg === "boy" ? "#0369a1" : "#be185d";
+    st[2] = data.bg === "boy" ? "#38bdf8" : "#f472b6";
+  }
   document.documentElement.style.setProperty("--c1", st[1]);
   document.documentElement.style.setProperty("--c2", st[2]);
   document.documentElement.style.setProperty("--fest1", st[1]); // kept when a photo re-colours the card
@@ -1200,6 +1308,9 @@
       karva: ["Chaand ki chandni, pyaar ka vrat,\nSada salamat rahe aapka saath."],
       anniversary: ["Saath ho yun hi har pal, har saal,\nPyaar rahe aapka hamesha bemisaal."],
       valentine: ["Dil se dil ki baat ho,\nHar pal pyaar ka saath ho."],
+      baby: ["Nanhe kadmon ki aahat aayi,\nGhar aangan mein khushiyan chhayi."],
+      wedding: ["Do dil mile, do parivaar jude,\nKhushiyon ke rang hamesha ude."],
+      congrat: ["Mehnat ka phal mila hai aaj,\nAise hi chhuo har oonchi parwaaz."],
       "": ["Khushiyan aapke kadam choomein,\nAapke saare sapne poore hon."]
     };
     var style = ["classic", "festive", "royal"].indexOf(data.s) !== -1 ? data.s : "festive";
@@ -1280,18 +1391,21 @@
       m.appendChild(into);
     }
     // pop-up: the festival's things stand up off the page as the card opens
-    if (shows("popup") && !still()) {
+    if (shows("popup") && !still() && st[0] !== "baby") { // a baby's card has its mobile up there instead
       book.classList.add("popup");
       var pop = el("div", "gc-pop");
       [st[6], st[3], st[6]].forEach(function (ch) { pop.appendChild(el("span", "", ch)); });
       into.appendChild(pop);
     }
+    var baby = st[0] === "baby";
     if (party && shows("blow")) into.appendChild(makeCake());
-    else if (!img) into.appendChild(line("gc-mark", st[3])); // the photo heads the card instead
+    else if (!img) into.appendChild(baby ? babyMobile() : line("gc-mark", st[3])); // the photo heads the card instead
+    if (baby) into.appendChild(babyRibbon());
     var head = line("gc-title", title);
     if (/[ऀ-ॿ]/.test(title)) head.className += " hi";
     into.appendChild(head);
-    into.appendChild(line("gc-rule", "— ✦ —"));
+    if (baby) babyClub().forEach(function (e) { into.appendChild(e); });
+    into.appendChild(baby ? babySteps() : line("gc-rule", "— ✦ —"));
     var text = message || "Wishing you lots of love, light and happiness!";
     var typed = el("span"), rest = el("span", "rest", text);
     var msgEl = line("gc-msg", ""); msgEl.setAttribute("aria-label", text);
@@ -1529,6 +1643,57 @@
   // the festival's own moment, under the card: light the diyas, throw
   // colour, tie the rakhi, deck the tree, a countdown, spot the moon.
   // `card`: what Holi's colours land on
+  // ---- a new baby's card (babyFor, babyName: set with the card's other fields)
+  // over the title: a mobile (moon, stars, clouds swaying on strings) and the baby in a glow
+  function babyMobile() {
+    var box = el("div", "bmobile"), bits = ["🌙", "⭐", "☁️", "⭐", "🧸"];
+    box.appendChild(el("div", "bar"));
+    bits.forEach(function (b, i) {
+      var h = el("div", "hang"), len = [34, 54, 26, 54, 34][i];
+      h.style.left = 26 + i * 44 + "px"; h.style.height = len + "px"; h.style.animationDelay = -i * 0.6 + "s";
+      h.appendChild(el("span", "", b));
+      box.appendChild(h);
+    });
+    box.appendChild(el("div", "face", "👶"));
+    return box;
+  }
+  function babyRibbon() {
+    var wrap = el("div");
+    wrap.appendChild(put(el("span", "bribbon"), data.bg === "boy" ? "babyBoy" : data.bg === "girl" ? "babyGirl" : "babyHere"));
+    return wrap;
+  }
+  // under the title: the papa club, the baby's name
+  function babyClub() {
+    var out = [put(el("div", "bclub"), { dad: "clubDad", mom: "clubMom", both: "clubBoth" }[babyFor])];
+    if (babyName) out.push(put(el("div", "bname"), "babyWelcome", { name: babyName }));
+    return out;
+  }
+  // in place of the — ✦ — line: little footsteps walking across
+  function babySteps() {
+    var row = el("div", "bsteps");
+    for (var i = 0; i < 6; i++) { var f = el("span", "", "👣"); f.style.animationDelay = i * 0.35 + "s"; row.appendChild(f); }
+    return row;
+  }
+  // under the cartoon: a promotion letter, "promoted to Papa", stamped APPROVED as it comes into view
+  function babyCert() {
+    var c = el("div", "cert");
+    c.appendChild(put(el("h4"), "certHead"));
+    c.appendChild(put(el("div", "who"), "certWho", { to: function () { return to || t("certYou"); } }));
+    c.appendChild(put(el("div", "role"), { dad: "roleDad", mom: "roleMom", both: "roleBoth" }[babyFor]));
+    var dl = el("dl");
+    [["certSalary", "certSalaryV"], ["certShift", "certShiftV"], ["certPerks", "certPerksV"], ["certBoss", "certBossV"]].forEach(function (row) {
+      dl.appendChild(put(el("dt"), row[0]));
+      dl.appendChild(put(el("dd"), row[1], { name: function () { return babyName || t("certBaby"); } }));
+    });
+    c.appendChild(dl);
+    c.appendChild(put(el("div", "by"), "certBy", { from: from }));
+    c.appendChild(put(el("div", "stamp"), "certStamp"));
+    var stamp = function () { if (!c.classList.contains("stamped")) { c.classList.add("stamped"); setTimeout(function () { buzz([40, 30, 90]); }, 420); } };
+    if ("IntersectionObserver" in window) {
+      new IntersectionObserver(function (es, o) { if (es[0].isIntersecting) { o.disconnect(); setTimeout(stamp, 500); } }, { threshold: 0.7 }).observe(c);
+    } else stamp();
+    return c;
+  }
   function moment(card) {
     var k = st[0], box = el("div", "moment"), hint = el("div", "hint no-shot");
     var done = function (key) { put(hint, key); buzz([60, 40, 60]); confetti(80); };
@@ -1673,6 +1838,74 @@
       };
       var more = el("div", "gc-tools no-shot"); more.appendChild(go);
       box.appendChild(sky); box.appendChild(hint); box.appendChild(more);
+      return box;
+    }
+    if (k === "baby") {
+      var room = el("div", "nursery");
+      room.appendChild(el("div", "sun", "☀️"));
+      [[8, 18, "0s"], [30, 46, "-9s"]].forEach(function (c) {
+        var cl = el("div", "cl", "☁️"); cl.style.top = c[0] + "px"; cl.style.left = "0"; cl.style.animationDelay = c[2]; room.appendChild(cl);
+      });
+      room.appendChild(el("div", "crib", "🛏️"));
+      var bird = el("div", "bird"), wing = el("span", "wing", "🕊️"), bundle = el("span", "bundle", "👶");
+      bird.appendChild(wing); bird.appendChild(bundle);
+      var kid = el("button", "kid", "👶"), bottle = el("div", "bottle", "🍼"), say = el("div", "nap-say"); // not .say: the page has one of its own
+      kid.setAttribute("aria-label", "Baby");
+      room.appendChild(bird); room.appendChild(bottle); room.appendChild(kid); room.appendChild(say);
+      var timers = [], at = function (ms, fn) { timers.push(setTimeout(fn, ms)); };
+      var talk = function (text, big, ms) {
+        say.textContent = text; say.classList.toggle("big", Boolean(big)); say.classList.add("on");
+        clearTimeout(say._t); say._t = setTimeout(function () { say.classList.remove("on"); }, ms || 1600);
+      };
+      var bubbles = function (n, chars) {
+        for (var i = 0; i < n; i++) {
+          var b = el("span", "bub", chars[i % chars.length]);
+          b.style.left = 40 + Math.random() * 20 + "%"; b.style.setProperty("--bx", Math.round(Math.random() * 80 - 40) + "px");
+          b.style.animationDelay = i * 0.08 + "s"; room.appendChild(b);
+          setTimeout(b.remove.bind(b), 2200);
+        }
+      };
+      var wiggle = function (cls) { kid.classList.remove("wiggle", "drink"); void kid.offsetWidth; kid.classList.add(cls || "wiggle"); };
+      // its funny lines, in the page's language (a list: not through t())
+      var lines = function () { return T[lang].babyLines || T.en.babyLines; }, said = 0, tickles = 0;
+      var feed = function () {
+        bottle.style.opacity = 1; bottle.style.left = "56%";
+        at(1300, function () { wiggle("drink"); talk("glug glug… 🍼", false, 2000); });
+        at(3400, function () { bottle.style.opacity = 0; bottle.style.left = "-15%"; talk(t("babyBurp"), true, 1800); buzz([80, 40, 120]); bubbles(10, ["💨", "✨", "🫧"]); });
+      };
+      // the cartoon: in flies the bird, down goes the baby, milk, a burp, a sneeze
+      var play = function () {
+        timers.forEach(clearTimeout); timers = [];
+        kid.classList.remove("on", "wiggle", "drink"); say.classList.remove("on");
+        bundle.style.opacity = 1; bird.style.transition = "none"; bird.style.left = "110%"; bird.style.top = "18px"; void bird.offsetWidth;
+        bird.style.transition = "";
+        if (still()) { bundle.style.opacity = 0; kid.classList.add("on"); talk(lines()[0], false, 2500); return; }
+        at(100, function () { bird.style.left = "42%"; bird.style.top = "30px"; });
+        at(2600, function () { bundle.style.opacity = 0; kid.classList.add("on"); buzz(30); });
+        at(3000, function () { bird.style.left = "-30%"; bird.style.top = "-10px"; talk(lines()[0], false, 1800); wiggle(); });
+        at(5000, feed);
+        at(9200, function () { talk(t("babySneeze"), true, 1600); wiggle(); bubbles(12, ["🫧", "🫧", "✨"]); });
+        at(11200, function () { confetti(60); talk("🎉 " + st[4] + "! 🎉", false, 2200); });
+      };
+      kid.onclick = function () {
+        wiggle(); buzz(25);
+        var all = lines();
+        talk(all[1 + said++ % (all.length - 1)]);
+        bubbles(4, ["💙", "💗", "⭐"]);
+        if (++tickles === 3) done("babyDone");
+      };
+      var tools = el("div", "gc-tools no-shot");
+      var again = put(el("button", "gc-btn no-shot"), "babyPlay"); again.onclick = play;
+      var milk = put(el("button", "gc-btn no-shot"), "babyFeed"); milk.onclick = function () { if (kid.classList.contains("on")) feed(); };
+      var tickle = put(el("button", "gc-btn no-shot"), "babyTickle"); tickle.onclick = function () { if (kid.classList.contains("on")) kid.onclick(); };
+      tools.appendChild(again); tools.appendChild(milk); tools.appendChild(tickle);
+      box.appendChild(room); box.appendChild(put(hint, "babyHint")); box.appendChild(tools);
+      box.appendChild(babyCert());
+      // starts once it's on screen (the card opens first)
+      var seen = false, start = function () { if (!seen) { seen = true; play(); } };
+      if ("IntersectionObserver" in window) {
+        new IntersectionObserver(function (es, o) { if (es[0].isIntersecting) { o.disconnect(); start(); } }, { threshold: 0.5 }).observe(room);
+      } else setTimeout(start, 800);
       return box;
     }
     if (k === "eid") {
@@ -1961,7 +2194,10 @@
     onam: [lead("🌼", "🌸", "🛶"), "Happy Onam! 🎁"],
     karva: [lead("✨", "⭐", "🌕"), "Happy Karva Chauth! 🎁"],
     anniversary: [lead("💞", "💕", "💐"), "Happy Anniversary! 🎁"],
-    valentine: [lead("💘", "💕", "🌹"), "Happy Valentine's Day! 🎁"]
+    valentine: [lead("💘", "💕", "🌹"), "Happy Valentine's Day! 🎁"],
+    baby: [lead("🎈", "🍼", "🧸<b>👶</b>"), "Congratulations! 🎁"],
+    wedding: [lead("🌸", "💐", "💍"), "Happy Married Life! 🎁"],
+    congrat: [lead("🎊", "✨", "🏆"), "Congratulations! 🎁"]
   }[st[0]] || [lead("🦌", "🦌", "🛷<b>🎅</b>"), "Ho ho ho! 🎁"];
   who[1] = who[1].replace("🎁", gem);
   // where he is: p 0 just off the card's right edge, 1 in its middle, 2 off
