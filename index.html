@@ -154,6 +154,20 @@
   .card.bare { background: transparent; box-shadow: none; }
   .card.bare .banner { display: none; }
   .card.bare .body { padding: 0; }
+  /* a voucher added to a greeting card: inside the card, between its message and the shayari */
+  /* in the card's own look: its script heading, Georgia, its colours */
+  .gc-voucher { margin: 16px auto 0; max-width: 320px; padding: 6px 14px 14px; border: 1px solid var(--c1-35); border-radius: 12px;
+    background: var(--paper); user-select: none; -webkit-user-select: none; }
+  .gc-voucher .label { margin-top: 4px; font: 400 28px/1.2 "Great Vibes", "Segoe Script", cursive; letter-spacing: 0; text-transform: none; color: var(--c1); }
+  .gc-voucher #codeBox .label { margin-top: 6px; font: italic 13px/1.4 Georgia, serif; color: #64748b; }
+  .gc-voucher .amount { margin-top: 0; font: 700 32px/1.2 Georgia, serif; }
+  .gc-voucher .code { font-size: 17px; padding: 8px 12px; border: 1.5px dashed var(--c1-60); background: #fffdf7; }
+  .gc-voucher .code span { user-select: text; -webkit-user-select: text; }
+  .gc-voucher .code button { border-radius: 999px; }
+  .gc-voucher .later, .gc-voucher .how { font: italic 11px/1.45 Georgia, serif; color: #94a3b8; }
+  .royal .gc-voucher { background: rgba(0,0,0,.28); border-color: #d4a017; }
+  .royal .gc-voucher .label, .royal .gc-voucher .amount { color: #f5d06f; }
+  .royal .gc-voucher #codeBox .label, .royal .gc-voucher .how { color: #e7c98a; }
   .gbook.side { max-width: 760px; }
   .gcard.side { display: flex; gap: 24px; align-items: stretch; padding: 28px; }
   .gcard.side .gc-photo { flex: 0 0 38%; width: 38%; height: auto; min-height: 340px; max-height: none; margin: 0; border-radius: 12px;
@@ -555,7 +569,8 @@
   .storm span { position: absolute; top: -20px; color: #fff; animation: fall linear forwards; }
 
   /* the claim code under a silver layer, scratched off */
-  .scratch { position: relative; display: inline-block; }
+  .scratch { position: relative; display: inline-block; margin-top: 6px; }
+  .scratch .code { margin-top: 0; }
   .scratch canvas { position: absolute; inset: 0; width: 100%; height: 100%; border-radius: 10px; cursor: pointer; touch-action: none; transition: opacity .6s; }
   .scratch canvas.off { opacity: 0; pointer-events: none; }
 
@@ -1031,14 +1046,12 @@
   $("wait").innerHTML = tune ? '<span class="notes">🎶</span> ' : '<span class="notes">✨</span> ';
   $("wait").appendChild(put(el("span"), tune ? (only ? "listenCard" : "listenGift") : (only ? "wayCard" : "wayGift")));
   if (only) {
-    $("giftPart").hidden = true;
+    $("giftPart").hidden = !(amount > 0 || code); // a voucher added to the card shows under it
     document.querySelector(".sign").hidden = true; // the card inside signs it
     $("card").classList.add("greeting");
     $("wait").style.visibility = "hidden"; // only where the envelope lands
-    if (party) {
-      $("card").classList.add("bare");
-      document.querySelector(".wrap").classList.add("wide");
-    }
+    $("card").classList.add("bare"); // no card around it, just the greeting card itself
+    if (party) document.querySelector(".wrap").classList.add("wide");
   }
   // a gift card's photos, under its message, one after another (a greeting card has its own)
   var giftPics = only ? [] : (Array.isArray(data.pp) ? data.pp : []).map(function (p) { return https(str(p, 500)); })
@@ -1129,10 +1142,13 @@
       cv.width = w * r; cv.height = h * r;
       g = cv.getContext("2d");
       g.scale(r, r);
-      var silver = g.createLinearGradient(0, 0, w, h);
-      silver.addColorStop(0, "#cbd5e1"); silver.addColorStop(0.5, "#f8fafc"); silver.addColorStop(1, "#94a3b8");
+      var silver = g.createLinearGradient(0, 0, w, h), inCard = wrap.closest(".gc-voucher");
+      if (inCard) { silver.addColorStop(0, st[1]); silver.addColorStop(1, st[2]); }
+      else { silver.addColorStop(0, "#cbd5e1"); silver.addColorStop(0.5, "#f8fafc"); silver.addColorStop(1, "#94a3b8"); }
       g.fillStyle = silver; g.fillRect(0, 0, w, h);
-      g.fillStyle = "#475569"; g.font = "700 16px Segoe UI, sans-serif"; g.textAlign = "center"; g.textBaseline = "middle";
+      g.fillStyle = inCard ? "#fff" : "#475569";
+      g.font = inCard ? "italic 700 16px Georgia, serif" : "700 16px Segoe UI, sans-serif";
+      g.textAlign = "center"; g.textBaseline = "middle";
       g.fillText(t(key || "scratch"), w / 2, h / 2);
       g.globalCompositeOperation = "destination-out";
     };
@@ -1410,6 +1426,11 @@
     msgEl.appendChild(typed); msgEl.appendChild(rest);
     into.appendChild(msgEl);
     if (ownVideo) into.appendChild(ownVideo);
+    // a voucher added to the card: inside it, under the message (never in its picture or video: the code)
+    if (!$("giftPart").hidden) {
+      $("giftPart").classList.add("gc-voucher", "no-shot");
+      into.appendChild($("giftPart"));
+    }
     if (data.q !== 0) {
       var pool = SHAYARI[st[0]] || SHAYARI[""];
       var seed = 0; (to + from).split("").forEach(function (ch) { seed = (seed * 31 + ch.charCodeAt(0)) % 9973; });
