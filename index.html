@@ -165,6 +165,8 @@
   .gc-voucher .code span { user-select: text; -webkit-user-select: text; }
   .gc-voucher .code button { border-radius: 999px; }
   .gc-voucher .later, .gc-voucher .how { font: italic 11px/1.45 Georgia, serif; color: #94a3b8; }
+  .gc-voucher-in { animation: voucherIn .8s cubic-bezier(.2, 1.4, .4, 1) both; }
+  @keyframes voucherIn { from { opacity: 0; transform: scale(.6) translateY(20px); } to { opacity: 1; transform: none; } }
   .royal .gc-voucher { background: rgba(0,0,0,.28); border-color: #d4a017; }
   .royal .gc-voucher .label, .royal .gc-voucher .amount { color: #f5d06f; }
   .royal .gc-voucher #codeBox .label, .royal .gc-voucher .how { color: #e7c98a; }
@@ -705,7 +707,7 @@
       wish: "Make a wish first… ✨", wishDone: "May your wish come true! 🎂", hbd: "🎉 Happy Birthday!",
       lockGift: "Your gift opens on its day", lockCard: "Your card opens on its day", opensOn: "{date}",
       days: "days", hrs: "hrs", mins: "min", secs: "sec",
-      diyaHint: "Tap the diyas to light them 🪔", diyaDone: "Shubh Deepavali! ✨", sparkler: "🎇 Sparkler", sparklerDone: "✓ Done",
+      diyaHint: "Tap the diyas to light them 🪔", diyaGift: "Light all 5 diyas to open your gift voucher 🪔🎁", diyaDone: "Shubh Deepavali! ✨", sparkler: "🎇 Sparkler", sparklerDone: "✓ Done",
       holiHint: "Tap the card to throw colours 🎨", holiDone: "Bura na mano, Holi hai! 🎉",
       rakhiHint: "Drag the rakhi to the wrist 🪢", rakhiDone: "Rakhi tied! A bond forever 💞",
       treeHint: "Tap the tree to decorate it 🎄", treeDone: "Beautiful! Merry Christmas ⭐", snow: "❄ Let it snow",
@@ -748,7 +750,7 @@
       wish: "पहले एक विश माँगो… ✨", wishDone: "विश पूरी हो! 🎂", hbd: "🎉 जन्मदिन मुबारक!",
       lockGift: "आपका तोहफ़ा अपने दिन खुलेगा", lockCard: "आपका कार्ड अपने दिन खुलेगा", opensOn: "{date}",
       days: "दिन", hrs: "घंटे", mins: "मिनट", secs: "सेकंड",
-      diyaHint: "दीये जलाने के लिए उन पर टैप करो 🪔", diyaDone: "शुभ दीपावली! ✨", sparkler: "🎇 फुलझड़ी", sparklerDone: "✓ बस",
+      diyaHint: "दीये जलाने के लिए उन पर टैप करो 🪔", diyaGift: "पाँचों दीये जलाओ, तब खुलेगा आपका गिफ़्ट वाउचर 🪔🎁", diyaDone: "शुभ दीपावली! ✨", sparkler: "🎇 फुलझड़ी", sparklerDone: "✓ बस",
       holiHint: "रंग उड़ाने के लिए कार्ड पर टैप करो 🎨", holiDone: "बुरा न मानो, होली है! 🎉",
       rakhiHint: "राखी को कलाई तक खींचो 🪢", rakhiDone: "राखी बँध गई! यह बंधन सदा रहे 💞",
       treeHint: "पेड़ सजाने के लिए उस पर टैप करो 🎄", treeDone: "वाह! मेरी क्रिसमस ⭐", snow: "❄ बर्फ़ गिराओ",
@@ -1088,6 +1090,7 @@
   if (giftNotes) document.querySelector(".sign").appendChild(giftNotes);
 
   var scratchUp = null, picUp = null; // the claim code's silver layer, drawn once the voucher shows
+  var voucherWaits = false; // a Diwali card's voucher, till the diyas are lit (voucherOut)
   if (code) {
     var box = el("div", "code");
     var copy = put(el("button"), "copy");
@@ -1427,9 +1430,12 @@
     into.appendChild(msgEl);
     if (ownVideo) into.appendChild(ownVideo);
     // a voucher added to the card: inside it, under the message (never in its picture or video: the code)
-    if (!$("giftPart").hidden) {
-      $("giftPart").classList.add("gc-voucher", "no-shot");
-      into.appendChild($("giftPart"));
+    var giftPart = $("giftPart"); // ($: only what's in the page; the card isn't yet)
+    if (!giftPart.hidden) {
+      giftPart.classList.add("gc-voucher", "no-shot");
+      into.appendChild(giftPart);
+      // Diwali: it shows only once all the diyas are lit (moment's diyas)
+      if (st[0] === "diwali") { giftPart.hidden = true; voucherWaits = true; }
     }
     if (data.q !== 0) {
       var pool = SHAYARI[st[0]] || SHAYARI[""];
@@ -1713,6 +1719,16 @@
     } else stamp();
     return c;
   }
+  // the voucher comes out: shown, its silver layer drawn now it has a size
+  function voucherOut() {
+    if (!voucherWaits) return;
+    voucherWaits = false;
+    var gp = $("giftPart");
+    gp.hidden = false;
+    gp.classList.add("gc-voucher-in");
+    if (scratchUp) requestAnimationFrame(scratchUp);
+    setTimeout(function () { gp.scrollIntoView({ behavior: "smooth", block: "center" }); }, 600);
+  }
   function moment(card) {
     var k = st[0], box = el("div", "moment"), hint = el("div", "hint no-shot");
     var done = function (key) { put(hint, key); buzz([60, 40, 60]); confetti(80); };
@@ -1725,14 +1741,14 @@
           if (this.classList.contains("lit")) return;
           this.classList.add("lit");
           buzz(30);
-          if (++lit === 5) { done("diyaDone"); bang(); }
+          if (++lit === 5) { done("diyaDone"); bang(); voucherOut(); }
         };
         row.appendChild(d);
       }
       var spark = put(el("button", "gc-btn no-shot"), "sparkler");
       spark.onclick = sparkler;
       var more = el("div", "gc-tools no-shot"); more.appendChild(spark);
-      box.appendChild(row); box.appendChild(put(hint, "diyaHint")); box.appendChild(more);
+      box.appendChild(row); box.appendChild(put(hint, voucherWaits ? "diyaGift" : "diyaHint")); box.appendChild(more);
       return box;
     }
     if (k === "holi") {
